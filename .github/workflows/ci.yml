@@ -1,0 +1,143 @@
+# File: ci.yml
+# Purpose: Verify Java, TypeScript, PostgreSQL behavior, repository invariants, and container builds.
+# Jobs: backend, frontend, postgres, repository, and containers run with read-only source permission.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Java verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - name: Verify backend
+        working-directory: backend
+        run: |
+          chmod +x mvnw
+          ./mvnw --batch-mode --no-transfer-progress verify
+      - name: Upload backend reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: backend-reports
+          path: |
+            backend/target/surefire-reports
+            backend/target/site/jacoco
+          if-no-files-found: error
+
+  frontend:
+    name: TypeScript verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Set up Node.js 24
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install locked dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Verify frontend
+        working-directory: frontend
+        run: npm run verify
+      - name: Confirm generated API declarations are committed
+        run: git diff --exit-code -- frontend/src/api/schema.d.ts
+      - name: Audit production dependencies
+        working-directory: frontend
+        run: npm audit --omit=dev --audit-level=high
+      - name: Upload frontend reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: frontend-reports
+          path: |
+            frontend/coverage
+            frontend/dist
+          if-no-files-found: error
+
+  postgres:
+    name: PostgreSQL integration
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18.6-alpine
+        env:
+          POSTGRES_DB: operations_test
+          POSTGRES_PASSWORD: operations_test
+          POSTGRES_USER: operations_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U operations_test -d operations_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 12
+    env:
+      IOC_DATABASE_PASSWORD: operations_test
+      IOC_DATABASE_URL: jdbc:postgresql://localhost:5432/operations_test
+      IOC_DATABASE_USERNAME: operations_test
+    steps:
+      - name: Check out source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - name: Run migrations and tests against PostgreSQL
+        working-directory: backend
+        run: |
+          chmod +x mvnw
+          ./mvnw --batch-mode --no-transfer-progress test
+
+  repository:
+    name: Repository validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Set up Node.js 24
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: "24"
+      - name: Validate documentation and source headers
+        run: node scripts/validate-repository.mjs
+      - name: Validate generated code index
+        run: node scripts/generate-code-index.mjs --check
+      - name: Validate Compose model
+        run: docker compose config --quiet
+
+  containers:
+    name: Container builds
+    runs-on: ubuntu-latest
+    needs: [backend, frontend, repository]
+    steps:
+      - name: Check out source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Build application images
+        run: docker compose build api web

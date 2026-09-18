@@ -1,0 +1,20 @@
+# Build output
+backend/target/
+frontend/dist/
+frontend/coverage/
+frontend/node_modules/
+frontend/*.tsbuildinfo
+.npm-cache/
+.docker-local/
+
+# Local state and IDE files
+.idea/
+.vscode/
+*.iml
+*.log
+.env
+.DS_Store
+Thumbs.db
+
+# Generated validation artifacts that should not be committed
+artifacts/

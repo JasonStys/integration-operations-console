@@ -1,0 +1,6 @@
+# File: frontend/.dockerignore
+# Purpose: Exclude generated browser artifacts from container build input.
+node_modules
+dist
+coverage
+*.tsbuildinfo

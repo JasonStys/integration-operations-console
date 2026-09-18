@@ -1,0 +1,12 @@
+# File: .dockerignore
+# Purpose: Keep local dependencies, VCS data, reports, and generated output out of image contexts.
+.git
+.github
+.npm-cache
+backend/target
+frontend/coverage
+frontend/dist
+frontend/node_modules
+frontend/*.tsbuildinfo
+artifacts
+*.log

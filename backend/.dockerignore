@@ -1,0 +1,5 @@
+# File: backend/.dockerignore
+# Purpose: Keep local build products and editor state out of the API build context.
+target
+.idea
+*.log
