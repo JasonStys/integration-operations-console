@@ -9,7 +9,7 @@
 | Suite                                      | Result                                                          | Evidence                     |
 | ------------------------------------------ | --------------------------------------------------------------- | ---------------------------- |
 | Java unit/integration/API/characterization | 22 passed, 0 failed, 0 skipped                                  | Maven Surefire reports       |
-| Java coverage gate                         | Passed; 82.42% aggregate line coverage                          | JaCoCo check/report          |
+| Java coverage gate                         | Passed; 83.27% aggregate line coverage                          | JaCoCo check/report          |
 | Java style                                 | Passed; 0 violations                                            | Maven Checkstyle             |
 | React and HTTP client                      | 8 passed across 2 test files                                    | Vitest report                |
 | Frontend coverage                          | 89.13% lines, 87.75% statements, 90% branches, 80.39% functions | V8 coverage summary          |
