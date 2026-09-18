@@ -1,7 +1,7 @@
 # File: frontend/Dockerfile
 # Purpose: Build the typed React client and serve immutable assets through an API proxy.
 # Stages: build validates the lockfile and bundle; runtime is an unprivileged web server.
-FROM node:24.18.0-alpine AS build
+FROM node:24.20.0-alpine AS build
 WORKDIR /workspace
 COPY frontend/package.json frontend/package-lock.json ./frontend/
 RUN cd frontend && npm ci
