@@ -30,8 +30,15 @@ class OperationsServiceIntegrationTest {
     @Test
     void deduplicatesSubmissionAndProcessesEveryProviderPage() {
         String suffix = UUID.randomUUID().toString();
-        UUID accountId = service.createAccount("atlas-ads", "Integration Test", "test-" + suffix)
-                .account().id();
+        OperationsStore.AccountResult firstAccount = service.createAccount(
+                "atlas-ads", "Integration Test", "test-" + suffix);
+        OperationsStore.AccountResult duplicateAccount = service.createAccount(
+                "atlas-ads", "Renamed Duplicate", "test-" + suffix);
+        UUID accountId = firstAccount.account().id();
+
+        assertThat(firstAccount.created()).isTrue();
+        assertThat(duplicateAccount.created()).isFalse();
+        assertThat(duplicateAccount.account().id()).isEqualTo(accountId);
 
         OperationsStore.SubmissionResult first = service.submit(
                 accountId, FailurePlan.NONE, 3, "correlation-a", "key-" + suffix, "test");
