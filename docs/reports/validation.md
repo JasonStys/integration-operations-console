@@ -13,9 +13,14 @@
 | Flyway V1 migration in PostgreSQL-compatible test database    | Passed                                           |
 | Docker Compose configuration model                            | Passed locally                                   |
 | Packaged API HTTP smoke test                                  | Passed: health, idempotency, pagination, audit   |
-| Container image build                                         | Pending CI; local Docker daemon was unavailable  |
-| Real PostgreSQL integration profile                           | Pending CI service validation                    |
-| Git diff whitespace check                                     | Pending final repository commit validation       |
+| Container image build                                         | Passed in GitHub Actions                         |
+| Real PostgreSQL 18.6 migration and suite                      | Passed in GitHub Actions                         |
+| Git diff whitespace check                                     | Passed                                           |
+| GitHub Actions CI                                             | [Passed for the database fix][ci-run]            |
+| CodeQL for Java and TypeScript                                | [Passed for the database fix][codeql-run]        |
 
-Pending entries are updated only after the named gate actually runs. No live provider, external
-credential, personal dataset, or production system was used.
+The local Docker daemon was unavailable, so image construction was validated on the hosted Linux
+runner. No live provider, external credential, personal dataset, or production system was used.
+
+[ci-run]: https://github.com/JasonStys/integration-operations-console/actions/runs/35302758060
+[codeql-run]: https://github.com/JasonStys/integration-operations-console/actions/runs/35302757940
