@@ -132,22 +132,22 @@ methods, and important named variables. Run the generator after source edits.
 
 ## `backend/src/main/java/dev/jasonstys/operations/store/JdbcOperationsStore.java`
 
-- Line 35: `JdbcOperationsStore`
-- Line 78: `saveAccountIfAbsent`
-- Line 102: `findAccount`
-- Line 110: `listAccounts`
-- Line 117: `saveJobIfAbsent`
-- Line 143: `findJob`
-- Line 151: `findNextReady`
-- Line 164: `updateJob`
-- Line 185: `listJobs`
-- Line 216: `appendAudit`
-- Line 231: `listAudit`
-- Line 238: `countByStatus`
-- Line 246: `accountParameters`
-- Line 255: `jobParameters`
-- Line 273: `databaseTime`
-- Line 277: `instant`
+- Line 38: `JdbcOperationsStore`
+- Line 94: `saveAccountIfAbsent`
+- Line 126: `findAccount`
+- Line 134: `listAccounts`
+- Line 141: `saveJobIfAbsent`
+- Line 175: `findJob`
+- Line 183: `findNextReady`
+- Line 196: `updateJob`
+- Line 217: `listJobs`
+- Line 248: `appendAudit`
+- Line 263: `listAudit`
+- Line 270: `countByStatus`
+- Line 278: `accountParameters`
+- Line 287: `jobParameters`
+- Line 305: `databaseTime`
+- Line 309: `instant`
 
 ## `backend/src/main/java/dev/jasonstys/operations/store/OperationsStore.java`
 
