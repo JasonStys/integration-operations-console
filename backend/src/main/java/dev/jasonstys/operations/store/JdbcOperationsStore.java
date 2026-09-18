@@ -15,6 +15,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,6 +23,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.jdbc.support.MetaDataAccessException;
 import org.springframework.stereotype.Repository;
 
 import dev.jasonstys.operations.domain.AuditEvent;
@@ -68,10 +71,23 @@ public class JdbcOperationsStore implements OperationsStore {
                     instant(result, "occurred_at"));
 
     private final NamedParameterJdbcTemplate jdbc;
+    private final boolean supportsOnConflict;
 
-    /** @param jdbc configured Spring named-parameter template */
+    /**
+     * Detects the narrow dialect difference required for transaction-safe conflict handling.
+     *
+     * @param jdbc configured Spring named-parameter template
+     */
     public JdbcOperationsStore(NamedParameterJdbcTemplate jdbc) {
         this.jdbc = jdbc;
+        try {
+            String productName = JdbcUtils.extractDatabaseMetaData(
+                    Objects.requireNonNull(jdbc.getJdbcTemplate().getDataSource()),
+                    metadata -> metadata.getDatabaseProductName());
+            supportsOnConflict = "PostgreSQL".equals(productName);
+        } catch (MetaDataAccessException exception) {
+            throw new IllegalStateException("cannot identify database dialect", exception);
+        }
     }
 
     @Override
@@ -81,21 +97,29 @@ public class JdbcOperationsStore implements OperationsStore {
                   (id, connector_id, display_name, external_reference, created_at)
                 VALUES
                   (:id, :connectorId, :displayName, :externalReference, :createdAt)
-                """;
+                """ + (supportsOnConflict
+                    ? "ON CONFLICT (connector_id, external_reference) DO NOTHING" : "");
+        int inserted;
         try {
-            jdbc.update(sql, accountParameters(account));
-            return new AccountResult(account, true);
+            inserted = jdbc.update(sql, accountParameters(account));
         } catch (DuplicateKeyException exception) {
-            String existingSql = """
-                    SELECT * FROM connector_accounts
-                    WHERE connector_id = :connectorId AND external_reference = :externalReference
-                    """;
-            List<ConnectorAccount> existing = jdbc.query(existingSql, accountParameters(account), ACCOUNT_ROW);
-            if (existing.isEmpty()) {
+            if (supportsOnConflict) {
                 throw exception;
             }
-            return new AccountResult(existing.getFirst(), false);
+            inserted = 0;
         }
+        if (inserted == 1) {
+            return new AccountResult(account, true);
+        }
+        String existingSql = """
+                SELECT * FROM connector_accounts
+                WHERE connector_id = :connectorId AND external_reference = :externalReference
+                """;
+        List<ConnectorAccount> existing = jdbc.query(existingSql, accountParameters(account), ACCOUNT_ROW);
+        if (existing.isEmpty()) {
+            throw new IllegalStateException("account conflict did not resolve to an existing row");
+        }
+        return new AccountResult(existing.getFirst(), false);
     }
 
     @Override
@@ -124,19 +148,27 @@ public class JdbcOperationsStore implements OperationsStore {
                   (:id, :accountId, :status, :failurePlan, :attempt, :maxAttempts, :pageCursor,
                    :availableAt, :correlationId, :idempotencyKey, :lastError,
                    :recordsProcessed, :createdAt, :updatedAt)
-                """;
+                """ + (supportsOnConflict
+                    ? "ON CONFLICT (idempotency_key) DO NOTHING" : "");
+        int inserted;
         try {
-            jdbc.update(sql, jobParameters(job));
-            return new SubmissionResult(job, true);
+            inserted = jdbc.update(sql, jobParameters(job));
         } catch (DuplicateKeyException exception) {
-            List<SyncJob> existing = jdbc.query(
-                    "SELECT * FROM sync_jobs WHERE idempotency_key = :idempotencyKey",
-                    new MapSqlParameterSource("idempotencyKey", job.idempotencyKey()), JOB_ROW);
-            if (existing.isEmpty()) {
+            if (supportsOnConflict) {
                 throw exception;
             }
-            return new SubmissionResult(existing.getFirst(), false);
+            inserted = 0;
         }
+        if (inserted == 1) {
+            return new SubmissionResult(job, true);
+        }
+        List<SyncJob> existing = jdbc.query(
+                "SELECT * FROM sync_jobs WHERE idempotency_key = :idempotencyKey",
+                new MapSqlParameterSource("idempotencyKey", job.idempotencyKey()), JOB_ROW);
+        if (existing.isEmpty()) {
+            throw new IllegalStateException("job conflict did not resolve to an existing row");
+        }
+        return new SubmissionResult(existing.getFirst(), false);
     }
 
     @Override
