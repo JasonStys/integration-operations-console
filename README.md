@@ -161,6 +161,8 @@ The committed [test summary](docs/reports/test-summary.md) and
 [validation report](docs/reports/validation.md) state exactly what was run and distinguish local
 results from CI. The project intentionally avoids real OAuth, secrets, external APIs, distributed
 worker claiming, and production identity management; see [Limitations](docs/limitations.md).
+The [latest maintenance audit](docs/reports/maintenance-audit-2026-09-18.md) records the current
+hosted runs and dependency compatibility decisions.
 
 ## License
 
