@@ -20,6 +20,7 @@ export type JobPage = components['schemas']['JobPage'];
 export type AccountMutationResult = components['schemas']['AccountMutationResult'];
 export type JobMutationResult = components['schemas']['JobMutationResult'];
 export type RunNextResult = components['schemas']['RunNextResult'];
+export type JobInspection = components['schemas']['JobInspection'];
 
 /** Operations required by the React view and replaced with fakes in component tests. */
 export interface OperationsClient {
@@ -33,6 +34,8 @@ export interface OperationsClient {
   cancelJob(id: string): Promise<SyncJob>;
   replayJob(id: string): Promise<SyncJob>;
   audit(id: string): Promise<AuditEvent[]>;
+  jobs(accountId: string, status: JobStatus | '', cursor: string | null): Promise<JobPage>;
+  inspection(id: string, before: string | null): Promise<JobInspection>;
 }
 
 /** Fetch-based implementation with consistent JSON/problem handling. */
@@ -81,6 +84,20 @@ export class HttpOperationsClient implements OperationsClient {
 
   public audit(id: string): Promise<AuditEvent[]> {
     return this.request(`/api/v1/jobs/${encodeURIComponent(id)}/audit`);
+  }
+
+  public jobs(accountId: string, status: JobStatus | '', cursor: string | null): Promise<JobPage> {
+    const query = new URLSearchParams({ limit: '20' });
+    if (accountId) query.set('accountId', accountId);
+    if (status) query.set('status', status);
+    if (cursor !== null) query.set('cursor', cursor);
+    return this.request(`/api/v1/jobs?${query.toString()}`);
+  }
+
+  public inspection(id: string, before: string | null): Promise<JobInspection> {
+    const query = new URLSearchParams({ limit: '25' });
+    if (before !== null) query.set('before', before);
+    return this.request(`/api/v1/jobs/${encodeURIComponent(id)}/inspection?${query.toString()}`);
   }
 
   private mutate<T>(path: string, body?: unknown, headers: HeadersInit = {}): Promise<T> {

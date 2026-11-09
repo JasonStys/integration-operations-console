@@ -71,7 +71,13 @@ paths:
           schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
         - in: query
           name: cursor
-          schema: { type: string }
+          schema: { type: string, maxLength: 256 }
+        - in: query
+          name: accountId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: status
+          schema: { $ref: "#/components/schemas/JobStatus" }
       responses:
         "200":
           description: Keyset-paginated jobs
@@ -123,6 +129,26 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/RunNextResult" }
         "403": { $ref: "#/components/responses/Problem" }
+  /api/v1/jobs/{id}/inspection:
+    get:
+      tags: [Jobs]
+      operationId: inspectJob
+      parameters:
+        - $ref: "#/components/parameters/JobId"
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+        - in: query
+          name: before
+          schema: { type: string, pattern: "^[1-9][0-9]{0,18}$" }
+      responses:
+        "200":
+          description: Captured current job and bounded chronological event window
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JobInspection" }
+        "400": { $ref: "#/components/responses/Problem" }
+        "404": { $ref: "#/components/responses/Problem" }
   /api/v1/jobs/{id}:
     get:
       tags: [Jobs]
@@ -320,12 +346,30 @@ components:
         created: { type: boolean }
     JobPage:
       type: object
-      required: [items]
+      required: [items, nextCursor]
       properties:
         items:
           type: array
           items: { $ref: "#/components/schemas/SyncJob" }
         nextCursor: { type: [string, "null"] }
+    AuditPage:
+      type: object
+      required: [items, nextBefore]
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items: { $ref: "#/components/schemas/AuditEvent" }
+        nextBefore: { type: [string, "null"], pattern: "^[1-9][0-9]{0,18}$" }
+    JobInspection:
+      type: object
+      required: [job, capturedAt, nextEligibleDelayMs, history, notice]
+      properties:
+        job: { $ref: "#/components/schemas/SyncJob" }
+        capturedAt: { type: string, format: date-time }
+        nextEligibleDelayMs: { type: [integer, "null"], minimum: 0 }
+        history: { $ref: "#/components/schemas/AuditPage" }
+        notice: { type: string }
     RunNextResult:
       type: object
       required: [workAvailable]

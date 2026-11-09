@@ -105,8 +105,18 @@ public class OperationsController {
     @GetMapping("/jobs")
     public OperationsStore.JobPage jobs(
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int limit,
-            @RequestParam(required = false) String cursor) {
-        return service.jobs(limit, cursor);
+            @RequestParam(required = false) @Size(max = 256) String cursor,
+            @RequestParam(required = false) UUID accountId,
+            @RequestParam(required = false) JobStatus status) {
+        return service.jobs(limit, cursor, accountId, status);
+    }
+
+    /** @return captured current job and bounded event window; demo viewers may inspect but not mutate */
+    @GetMapping("/jobs/{id}/inspection")
+    public OperationsService.JobInspection inspection(@PathVariable UUID id,
+            @RequestParam(defaultValue = "25") @Min(1) @Max(100) int limit,
+            @RequestParam(required = false) @Min(1) Long before) {
+        return service.inspection(id, limit, before);
     }
 
     /** @return a single job */

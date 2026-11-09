@@ -13,6 +13,7 @@ import java.util.UUID;
 import dev.jasonstys.operations.domain.AuditEvent;
 import dev.jasonstys.operations.domain.ConnectorAccount;
 import dev.jasonstys.operations.domain.SyncJob;
+import dev.jasonstys.operations.domain.JobStatus;
 
 /** Transaction-friendly durable operations boundary. */
 public interface OperationsStore {
@@ -40,6 +41,12 @@ public interface OperationsStore {
     /** Returns a keyset-paginated job page. */
     JobPage listJobs(int limit, PageCursor cursor);
 
+    /** Returns a bounded filter-specific keyset page using bound SQL parameters. */
+    JobPage listJobs(int limit, PageCursor cursor, UUID accountId, JobStatus status);
+
+    /** Returns a newest-event window in chronological order, with an exact older-page cursor. */
+    AuditPage auditPage(UUID jobId, int limit, Long before);
+
     /** Appends, but never updates, one audit event. */
     void appendAudit(AuditEvent event);
 
@@ -58,6 +65,7 @@ public interface OperationsStore {
     }
 
     /** One page and the cursor for the following page. */
+    @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS)
     record JobPage(List<SyncJob> items, String nextCursor) {
         public JobPage {
             items = List.copyOf(items);
@@ -66,5 +74,13 @@ public interface OperationsStore {
 
     /** Aggregate state count. */
     record StatusCount(String status, long count) {
+    }
+
+    /** A bounded event window; no omitted older history is implied absent. */
+    @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS)
+    record AuditPage(List<AuditEvent> items, String nextBefore) {
+        public AuditPage {
+            items = List.copyOf(items);
+        }
     }
 }

@@ -137,6 +137,7 @@ a:focus-visible {
 
 main {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2.5rem;
   padding: 1.5rem 0 4rem;
 }
@@ -182,6 +183,7 @@ h2 {
 }
 
 .metric span {
+  overflow-wrap: anywhere;
   color: var(--muted);
   font-size: 0.7rem;
   font-weight: 750;
@@ -202,6 +204,7 @@ h2 {
 }
 
 .panel {
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: 0.8rem;
   background: var(--paper);
@@ -260,6 +263,7 @@ select {
 }
 
 .table-wrap {
+  max-width: 100%;
   overflow-x: auto;
   border: 1px solid var(--line);
   border-radius: 0.8rem;
@@ -371,6 +375,7 @@ tbody tr:last-child td {
 }
 
 .mono {
+  overflow-wrap: anywhere;
   font-family: 'Cascadia Code', 'SFMono-Regular', Consolas, monospace;
   font-size: 0.82rem;
 }

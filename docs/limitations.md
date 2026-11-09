@@ -8,6 +8,11 @@
 - Retries run only when an operator invokes the scheduler endpoint; a production service needs a
   controlled background worker or durable queue.
 - H2 accelerates local tests but does not replace PostgreSQL CI and staging validation.
+- Filtered job pages are live keyset views, not a frozen export. Concurrent updates can move a job
+  across pages; refresh before decisions. Cursor query binding does not authenticate the requester.
+- Captured review is read-only evidence from one database snapshot, not an attestation, historical
+  state reconstruction, provider forecast or authorization to replay work. Each older window has
+  a new capture time. Audit text is displayed inertly but may contain operational metadata.
 - Prometheus counters and health exist, but alert rules, dashboards, traces, and retention do not.
 - Compose credentials are local-only defaults and must be replaced by managed secrets.
 - Disaster recovery, zero-downtime migration rehearsal, signed images, and SBOM publication are

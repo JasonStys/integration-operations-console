@@ -103,27 +103,30 @@ methods, and important named variables. Run the generator after source edits.
 
 ## `backend/src/main/java/dev/jasonstys/operations/service/OperationsService.java`
 
-- Line 37: `OperationsService`
-- Line 66: `createAccount`
-- Line 79: `accounts`
-- Line 83: `atomically`
-- Line 85: `submit`
-- Line 114: `processNext`
-- Line 121: `process`
-- Line 135: `cancel`
-- Line 146: `replay`
-- Line 157: `job`
-- Line 163: `jobs`
-- Line 170: `audit`
-- Line 177: `statusCounts`
-- Line 182: `connectors`
-- Line 186: `process`
-- Line 222: `handleRetryable`
-- Line 234: `deadLetter`
-- Line 242: `requireAccount`
-- Line 247: `requireJob`
-- Line 252: `audit`
-- Line 256: `counter`
+- Line 38: `OperationsService`
+- Line 68: `createAccount`
+- Line 81: `accounts`
+- Line 85: `atomically`
+- Line 87: `submit`
+- Line 120: `processNext`
+- Line 127: `process`
+- Line 141: `cancel`
+- Line 152: `replay`
+- Line 163: `job`
+- Line 169: `jobs`
+- Line 175: `jobs`
+- Line 182: `inspection`
+- Line 195: `JobInspection`
+- Line 201: `audit`
+- Line 208: `statusCounts`
+- Line 213: `connectors`
+- Line 217: `process`
+- Line 253: `handleRetryable`
+- Line 265: `deadLetter`
+- Line 273: `requireAccount`
+- Line 278: `requireJob`
+- Line 283: `audit`
+- Line 287: `counter`
 
 ## `backend/src/main/java/dev/jasonstys/operations/service/RetryPolicy.java`
 
@@ -141,27 +144,31 @@ methods, and important named variables. Run the generator after source edits.
 - Line 183: `findNextReady`
 - Line 196: `updateJob`
 - Line 217: `listJobs`
-- Line 248: `appendAudit`
-- Line 263: `listAudit`
-- Line 270: `countByStatus`
-- Line 278: `accountParameters`
-- Line 287: `jobParameters`
-- Line 305: `databaseTime`
-- Line 309: `instant`
+- Line 222: `listJobs`
+- Line 262: `auditPage`
+- Line 281: `appendAudit`
+- Line 296: `listAudit`
+- Line 303: `countByStatus`
+- Line 311: `accountParameters`
+- Line 320: `jobParameters`
+- Line 338: `databaseTime`
+- Line 342: `instant`
 
 ## `backend/src/main/java/dev/jasonstys/operations/store/OperationsStore.java`
 
-- Line 18: `OperationsStore`
-- Line 53: `AccountResult`
-- Line 57: `SubmissionResult`
-- Line 61: `JobPage`
-- Line 68: `StatusCount`
+- Line 19: `OperationsStore`
+- Line 60: `AccountResult`
+- Line 64: `SubmissionResult`
+- Line 69: `JobPage`
+- Line 76: `StatusCount`
+- Line 81: `AuditPage`
 
 ## `backend/src/main/java/dev/jasonstys/operations/store/PageCursor.java`
 
-- Line 20: `PageCursor`
-- Line 22: `encode`
-- Line 34: `decode`
+- Line 23: `PageCursor`
+- Line 30: `requireScope`
+- Line 36: `encode`
+- Line 49: `decode`
 
 ## `backend/src/main/java/dev/jasonstys/operations/web/ApiExceptionHandler.java`
 
@@ -194,16 +201,17 @@ methods, and important named variables. Run the generator after source edits.
 - Line 77: `accounts`
 - Line 83: `submit`
 - Line 106: `jobs`
-- Line 114: `job`
-- Line 120: `run`
-- Line 129: `runNext`
-- Line 139: `cancel`
-- Line 149: `replay`
-- Line 159: `audit`
-- Line 165: `dashboard`
-- Line 174: `requireOperator`
-- Line 181: `actor`
-- Line 188: `correlationId`
+- Line 116: `inspection`
+- Line 124: `job`
+- Line 130: `run`
+- Line 139: `runNext`
+- Line 149: `cancel`
+- Line 159: `replay`
+- Line 169: `audit`
+- Line 175: `dashboard`
+- Line 184: `requireOperator`
+- Line 191: `actor`
+- Line 198: `correlationId`
 
 ## `backend/src/main/java/dev/jasonstys/operations/web/WebConfiguration.java`
 
@@ -213,6 +221,13 @@ methods, and important named variables. Run the generator after source edits.
 ## `backend/src/test/java/dev/jasonstys/operations/OperationsControllerIntegrationTest.java`
 
 - Line 27: `OperationsControllerIntegrationTest`
+
+## `backend/src/test/java/dev/jasonstys/operations/OperationsReviewIntegrationTest.java`
+
+- Line 39: `runs`
+- Line 42: `OperationsReviewIntegrationTest`
+- Line 54: `account`
+- Line 58: `submit`
 
 ## `backend/src/test/java/dev/jasonstys/operations/OperationsServiceIntegrationTest.java`
 
@@ -235,20 +250,49 @@ methods, and important named variables. Run the generator after source edits.
 
 - Line 17: `RetryPolicyTest`
 
+## `backend/src/test/java/dev/jasonstys/operations/store/PageCursorTest.java`
+
+- Line 21: `PageCursorTest`
+- Line 46: `encode`
+
+## `frontend/playwright.config.ts`
+
+- Line 10: `checkedPort`
+- Line 11: `port`
+- Line 21: `apiPort`
+- Line 22: `uiPort`
+- Line 24: `baseURL`
+
 ## `frontend/src/App.test.tsx`
 
-- Line 19: `account`
-- Line 27: `job`
-- Line 44: `event`
-- Line 53: `fakeClient`
-- Line 54: `accounts`
-- Line 55: `jobs`
-- Line 56: `dashboard`
-- Line 91: `user`
-- Line 92: `client`
-- Line 116: `user`
-- Line 117: `client`
-- Line 130: `client`
+- Line 25: `account`
+- Line 33: `job`
+- Line 50: `event`
+- Line 59: `fakeClient`
+- Line 60: `accounts`
+- Line 61: `jobs`
+- Line 62: `dashboard`
+- Line 107: `user`
+- Line 108: `client`
+- Line 132: `user`
+- Line 133: `client`
+- Line 146: `client`
+- Line 154: `user`
+- Line 155: `client`
+- Line 158: `reference`
+- Line 174: `key`
+- Line 196: `user`
+- Line 197: `client`
+- Line 203: `key`
+- Line 219: `user`
+- Line 220: `client`
+- Line 223: `reference`
+- Line 229: `key`
+- Line 238: `fetchMock`
+- Line 239: `path`
+- Line 240: `payload`
+- Line 279: `user`
+- Line 280: `client`
 
 ## `frontend/src/App.tsx`
 
@@ -259,16 +303,80 @@ methods, and important named variables. Run the generator after source edits.
 - Line 36: `connectorId`
 - Line 37: `accountId`
 - Line 38: `failureId`
-- Line 52: `refresh`
-- Line 71: `selectedJob`
-- Line 76: `execute`
-- Line 90: `createAccount`
-- Line 93: `result`
-- Line 102: `submitJob`
-- Line 105: `idempotencyKey`
-- Line 106: `result`
-- Line 114: `showAudit`
-- Line 366: `errorMessage`
+- Line 39: `referenceId`
+- Line 40: `requestKeyId`
+- Line 55: `refresh`
+- Line 74: `execute`
+- Line 88: `createAccount`
+- Line 91: `result`
+- Line 100: `submitJob`
+- Line 103: `result`
+- Line 111: `showAudit`
+- Line 385: `errorMessage`
+
+## `frontend/src/JobReview.test.tsx`
+
+- Line 21: `account`
+- Line 28: `job`
+- Line 44: `otherJob`
+- Line 50: `revision`
+- Line 53: `capture`
+- Line 78: `clientFixture`
+- Line 97: `resolve`
+- Line 98: `reject`
+- Line 99: `promise`
+- Line 113: `user`
+- Line 114: `client`
+- Line 155: `client`
+- Line 168: `expected`
+- Line 180: `user`
+- Line 181: `client`
+- Line 182: `older`
+- Line 197: `refreshed`
+- Line 232: `create`
+- Line 233: `revoke`
+- Line 236: `extends`
+- Line 238: `click`
+- Line 243: `blob`
+- Line 246: `text`
+- Line 247: `reader`
+- Line 254: `link`
+- Line 264: `client`
+- Line 293: `client`
+- Line 294: `old`
+- Line 295: `current`
+- Line 320: `client`
+- Line 321: `first`
+- Line 322: `second`
+- Line 326: `props`
+- Line 327: `view`
+- Line 329: `updatedRevision`
+- Line 337: `replacement`
+- Line 362: `client`
+- Line 363: `pending`
+- Line 367: `props`
+- Line 368: `view`
+
+## `frontend/src/JobReview.tsx`
+
+- Line 17: `statuses`
+- Line 45: `JobReview`
+- Line 67: `pageMatches`
+- Line 72: `page`
+- Line 75: `pageError`
+- Line 76: `loading`
+- Line 77: `detailMatches`
+- Line 83: `inspection`
+- Line 84: `detailError`
+- Line 85: `detailLoading`
+- Line 89: `active`
+- Line 90: `binding`
+- Line 111: `active`
+- Line 114: `binding`
+- Line 131: `download`
+- Line 133: `url`
+- Line 136: `link`
+- Line 362: `message`
 
 ## `frontend/src/api/client.test.ts`
 
@@ -282,12 +390,14 @@ methods, and important named variables. Run the generator after source edits.
 
 ## `frontend/src/api/client.ts`
 
-- Line 25: `OperationsClient`
-- Line 39: `HttpOperationsClient`
-- Line 40: `baseUrl`
-- Line 99: `response`
-- Line 108: `problem`
-- Line 120: `apiClient`
+- Line 26: `OperationsClient`
+- Line 42: `HttpOperationsClient`
+- Line 43: `baseUrl`
+- Line 90: `query`
+- Line 98: `query`
+- Line 116: `response`
+- Line 125: `problem`
+- Line 137: `apiClient`
 
 ## `frontend/src/components/StatusBadge.tsx`
 
@@ -297,6 +407,132 @@ methods, and important named variables. Run the generator after source edits.
 ## `frontend/src/main.tsx`
 
 - Line 12: `rootElement`
+
+## `frontend/tests/browser-server.mjs`
+
+- Line 18: `frontend`
+- Line 19: `dist`
+- Line 20: `jar`
+- Line 21: `apiPort`
+- Line 22: `uiPort`
+- Line 23: `java`
+- Line 28: `child`
+- Line 29: `server`
+- Line 30: `logs`
+- Line 31: `ownedBinding`
+- Line 32: `stopping`
+- Line 35: `checkedPort`
+- Line 38: `port`
+- Line 45: `ensureUnused`
+- Line 46: `probes`
+- Line 48: `port`
+- Line 49: `probe`
+- Line 70: `record`
+- Line 76: `waitForOwnedApi`
+- Line 77: `attempt`
+- Line 81: `ready`
+- Line 82: `health`
+- Line 85: `body`
+- Line 109: `serve`
+- Line 115: `pathname`
+- Line 117: `upstream`
+- Line 143: `decoded`
+- Line 151: `file`
+- Line 152: `offset`
+- Line 163: `mime`
+- Line 179: `stop`
+- Line 187: `attempt`
+- Line 198: `main`
+- Line 203: `excludedEnvironment`
+- Line 213: `environment`
+
+## `frontend/tests/browser/workflows.browser.ts`
+
+- Line 27: `OPERATOR`
+- Line 46: `filterAccount`
+- Line 49: `filtered`
+- Line 50: `url`
+- Line 58: `result`
+- Line 59: `expectedIds`
+- Line 72: `test`
+- Line 74: `jobs`
+- Line 75: `ops`
+- Line 77: `key`
+- Line 78: `result`
+- Line 91: `result`
+- Line 107: `id`
+- Line 108: `result`
+- Line 110: `job`
+- Line 128: `key`
+- Line 132: `accountResponse`
+- Line 137: `account`
+- Line 140: `firstResponse`
+- Line 144: `first`
+- Line 153: `duplicateResponse`
+- Line 157: `duplicate`
+- Line 160: `expectedRecords`
+- Line 161: `runResponse`
+- Line 165: `processed`
+- Line 189: `posts`
+- Line 194: `reference`
+- Line 202: `linked`
+- Line 207: `account`
+- Line 213: `key`
+- Line 222: `submitted`
+- Line 226: `job`
+- Line 236: `account`
+- Line 237: `jobs`
+- Line 238: `index`
+- Line 239: `cancelled`
+- Line 240: `oldest`
+- Line 243: `dashboard`
+- Line 248: `table`
+- Line 249: `firstIds`
+- Line 253: `secondIds`
+- Line 254: `expected`
+- Line 266: `response`
+- Line 267: `cursor`
+- Line 269: `otherScope`
+- Line 280: `account`
+- Line 281: `job`
+- Line 282: `index`
+- Line 283: `dead`
+- Line 287: `prior`
+- Line 288: `originalAudit`
+- Line 293: `responses`
+- Line 297: `capturedResponse`
+- Line 301: `capture`
+- Line 311: `queryCount`
+- Line 312: `downloaded`
+- Line 314: `download`
+- Line 315: `path`
+- Line 320: `olderResponse`
+- Line 324: `older`
+- Line 346: `account`
+- Line 347: `job`
+- Line 348: `before`
+- Line 349: `audit`
+- Line 351: `operation`
+- Line 370: `account`
+- Line 371: `job`
+- Line 376: `delayed`
+- Line 385: `row`
+- Line 404: `width`
+- Line 409: `results`
+
+## `frontend/tests/check-browser-fixture.mjs`
+
+- Line 14: `directory`
+- Line 17: `runGuard`
+- Line 34: `main`
+- Line 35: `invalid`
+- Line 38: `same`
+- Line 41: `listener`
+- Line 44: `address`
+- Line 46: `occupied`
+- Line 53: `body`
+- Line 54: `request`
+- Line 57: `value`
 
 ## `scripts/demo.sh`
 

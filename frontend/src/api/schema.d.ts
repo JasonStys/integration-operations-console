@@ -68,6 +68,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/jobs/{id}/inspection": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["inspectJob"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/jobs/{id}": {
         parameters: {
             query?: never;
@@ -238,7 +254,19 @@ export interface components {
         };
         JobPage: {
             items: components["schemas"]["SyncJob"][];
-            nextCursor?: string | null;
+            nextCursor: string | null;
+        };
+        AuditPage: {
+            items: components["schemas"]["AuditEvent"][];
+            nextBefore: string | null;
+        };
+        JobInspection: {
+            job: components["schemas"]["SyncJob"];
+            /** Format: date-time */
+            capturedAt: string;
+            nextEligibleDelayMs: number | null;
+            history: components["schemas"]["AuditPage"];
+            notice: string;
         };
         RunNextResult: {
             job?: components["schemas"]["SyncJob"] | null;
@@ -365,6 +393,8 @@ export interface operations {
             query?: {
                 limit?: number;
                 cursor?: string;
+                accountId?: string;
+                status?: components["schemas"]["JobStatus"];
             };
             header?: never;
             path?: never;
@@ -447,6 +477,33 @@ export interface operations {
                 };
             };
             403: components["responses"]["Problem"];
+        };
+    };
+    inspectJob: {
+        parameters: {
+            query?: {
+                limit?: number;
+                before?: string;
+            };
+            header?: never;
+            path: {
+                id: components["parameters"]["JobId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Captured current job and bounded chronological event window */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobInspection"];
+                };
+            };
+            400: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
         };
     };
     getJob: {

@@ -5,11 +5,10 @@
  * exact lines are generated in docs/code-index.md.
  * Variables: selected failure/account/job are UI state only; the API remains the source of truth.
  */
-import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 
 import {
   apiClient,
-  type AuditEvent,
   type ConnectorAccount,
   type ConnectorDescriptor,
   type Dashboard,
@@ -18,6 +17,7 @@ import {
   type SyncJob,
 } from './api/client';
 import { StatusBadge } from './components/StatusBadge';
+import { JobReview } from './JobReview';
 
 interface AppProps {
   client?: OperationsClient;
@@ -36,15 +36,18 @@ export function App({ client = apiClient }: AppProps) {
   const connectorId = useId();
   const accountId = useId();
   const failureId = useId();
+  const referenceId = useId();
+  const requestKeyId = useId();
   const [connectors, setConnectors] = useState<ConnectorDescriptor[]>([]);
   const [accounts, setAccounts] = useState<ConnectorAccount[]>([]);
   const [dashboard, setDashboard] = useState<Dashboard>({ statusCounts: {}, recentJobs: [] });
-  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [selectedAccountId, setSelectedAccountId] = useState('');
   const [selectedConnectorId, setSelectedConnectorId] = useState('');
   const [failurePlan, setFailurePlan] = useState<FailurePlan>('NONE');
   const [accountName, setAccountName] = useState('Demo Operations Account');
+  const [externalReference, setExternalReference] = useState('demo-account-01');
+  const [requestKey, setRequestKey] = useState<string>(() => crypto.randomUUID());
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('Loading operational data…');
   const [error, setError] = useState<string | null>(null);
@@ -68,11 +71,6 @@ export function App({ client = apiClient }: AppProps) {
       .catch((reason: unknown) => setError(errorMessage(reason)));
   }, [refresh]);
 
-  const selectedJob = useMemo(
-    () => dashboard.recentJobs.find((job) => job.id === selectedJobId) ?? null,
-    [dashboard.recentJobs, selectedJobId],
-  );
-
   async function execute(label: string, action: () => Promise<unknown>) {
     setBusy(true);
     setError(null);
@@ -93,7 +91,7 @@ export function App({ client = apiClient }: AppProps) {
       const result = await client.createAccount({
         connectorId: selectedConnectorId,
         displayName: accountName,
-        externalReference: `demo-${selectedConnectorId}`,
+        externalReference,
       });
       setSelectedAccountId(result.resource.id);
     });
@@ -102,24 +100,16 @@ export function App({ client = apiClient }: AppProps) {
   async function submitJob(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     await execute('Job accepted with an idempotency key.', async () => {
-      const idempotencyKey = `web-${selectedAccountId}-${failurePlan}`;
       const result = await client.submitJob(
         { accountId: selectedAccountId, failurePlan, maxAttempts: 3 },
-        idempotencyKey,
+        requestKey,
       );
       setSelectedJobId(result.resource.id);
     });
   }
 
-  async function showAudit(job: SyncJob) {
+  function showAudit(job: SyncJob) {
     setSelectedJobId(job.id);
-    setError(null);
-    try {
-      setAuditEvents(await client.audit(job.id));
-      setMessage(`Showing ${job.id.slice(0, 8)} audit history.`);
-    } catch (reason: unknown) {
-      setError(errorMessage(reason));
-    }
   }
 
   return (
@@ -155,7 +145,7 @@ export function App({ client = apiClient }: AppProps) {
               type="button"
               disabled={busy}
               onClick={() =>
-                void execute('Scheduler processed the next eligible page.', client.runNext)
+                void execute('Scheduler processed the next eligible page.', () => client.runNext())
               }
             >
               Run next eligible job
@@ -196,6 +186,20 @@ export function App({ client = apiClient }: AppProps) {
               onChange={(event) => setAccountName(event.target.value)}
               required
             />
+            <label htmlFor={referenceId}>Provider account reference</label>
+            <input
+              id={referenceId}
+              value={externalReference}
+              minLength={2}
+              maxLength={120}
+              pattern={'[A-Za-z0-9._\\-]{2,120}'}
+              onChange={(event) => setExternalReference(event.target.value)}
+              required
+            />
+            <p>
+              The same connector/reference returns the existing linked account. Use a different
+              fictional reference for another account.
+            </p>
             <button className="button" type="submit" disabled={busy || selectedConnectorId === ''}>
               Link account
             </button>
@@ -232,6 +236,28 @@ export function App({ client = apiClient }: AppProps) {
                 </option>
               ))}
             </select>
+            <label htmlFor={requestKeyId}>Sync request key</label>
+            <input
+              id={requestKeyId}
+              value={requestKey}
+              minLength={8}
+              maxLength={100}
+              pattern={'[A-Za-z0-9._:\\-]{8,100}'}
+              onChange={(event) => setRequestKey(event.target.value)}
+              required
+            />
+            <p>
+              Keep this key to retry the same request safely. Generate a new key for a separate
+              sync; changing the request with an old key is rejected.
+            </p>
+            <button
+              className="button"
+              type="button"
+              disabled={busy}
+              onClick={() => setRequestKey(crypto.randomUUID())}
+            >
+              Generate new sync request key
+            </button>
             <button className="button" type="submit" disabled={busy || selectedAccountId === ''}>
               Submit idempotent job
             </button>
@@ -241,11 +267,16 @@ export function App({ client = apiClient }: AppProps) {
         <section aria-labelledby="jobs-heading">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Keyset-paginated feed</p>
+              <p className="eyebrow">Recent activity and quick actions</p>
               <h2 id="jobs-heading">Recent jobs</h2>
             </div>
           </div>
-          <div className="table-wrap">
+          <div
+            className="table-wrap"
+            tabIndex={0}
+            role="region"
+            aria-label="Recent integration jobs"
+          >
             <table>
               <caption className="visually-hidden">Recent integration synchronization jobs</caption>
               <thead>
@@ -334,31 +365,19 @@ export function App({ client = apiClient }: AppProps) {
           </div>
         </section>
 
-        <section className="panel audit-panel" aria-labelledby="audit-heading">
-          <p className="eyebrow">Append-only evidence</p>
-          <h2 id="audit-heading">Audit trail</h2>
-          {selectedJob === null ? (
-            <p>Select Audit on a job to inspect each scheduler and operator decision.</p>
-          ) : (
-            <>
-              <p className="mono">Job {selectedJob.id}</p>
-              <ol className="timeline">
-                {auditEvents.map((event) => (
-                  <li key={event.id}>
-                    <strong>{event.eventType.replaceAll('_', ' ')}</strong>
-                    <span>{event.detail}</span>
-                    <time dateTime={event.occurredAt}>
-                      {new Date(event.occurredAt).toLocaleString()}
-                    </time>
-                  </li>
-                ))}
-              </ol>
-            </>
-          )}
-        </section>
+        <JobReview
+          client={client}
+          accounts={accounts}
+          requestedJobId={selectedJobId}
+          revision={dashboard}
+          busy={busy}
+        />
       </main>
 
-      <footer>Fictional providers • deterministic failures • no external credentials</footer>
+      <footer>
+        Created by <a href="https://github.com/JasonStys">Jason Stys</a> · Fictional providers •
+        deterministic failures • no external credentials
+      </footer>
     </div>
   );
 }
