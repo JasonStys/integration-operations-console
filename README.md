@@ -19,6 +19,13 @@ repository.
 - Capped exponential backoff with deterministic jitter, rate-limit handling, dead-lettering,
   replay, cancellation, and correlation IDs.
 - Keyset pagination and supporting SQL indexes rather than offset scans.
+- Search the complete job database by account and state, including older jobs outside the ten-row
+  activity feed. Query-bound cursors prevent accidental reuse with different filters.
+- Capture current job state and a bounded audit window together, browse older events, and download
+  the exact displayed review. Retry availability is explicit; historical events never masquerade
+  as a reconstruction of historical state.
+- Link several simulated accounts per connector and distinguish a retry of the same sync request
+  from a new request using visible idempotency keys.
 - A responsive, keyboard-usable operations console backed by OpenAPI-generated TypeScript types.
 - Health probes and Prometheus metrics for operational diagnosis.
 - Enforced Java and browser coverage, linting, formatting, schema migration, build, and repository
@@ -101,6 +108,7 @@ trade-offs are in [Architecture](docs/architecture.md) and
 | Operations           | Run-next/run-one, cancel, replay, history, status counts                                   | service and REST controller              |
 | Observability        | Correlation response header, audit events, health probes, Prometheus counters              | web filter, store, Actuator              |
 | Typed UI             | OpenAPI-generated DTO types and a fetch adapter                                            | `docs/openapi.yaml`, `frontend/src/api/` |
+| Complete job review | Account/state filters, bounded history pages, captured state/delay and exact JSON download | `frontend/src/JobReview.tsx`, `store/`, `service/` |
 | Verification         | Unit, integration, API, component, accessibility, characterization, style, and build gates | test trees and workflows                 |
 
 ## API summary
@@ -111,6 +119,10 @@ State-changing demonstration requests require `X-Demo-Role: operator`; job submi
 an `Idempotency-Key`. This header check illustrates an authorization boundary but is not real
 authentication. See [API guide](docs/api.md) and the complete
 [OpenAPI contract](docs/openapi.yaml).
+
+For a realistic operator or viewer walkthrough, including request-key reuse and delayed work,
+see [Job review](docs/job-review.md). These are local simulated integrations: the demo role header
+is not an account system and should never be used to protect real customer information.
 
 ## Repository guide
 
@@ -128,6 +140,7 @@ authentication. See [API guide](docs/api.md) and the complete
 | `backend/Dockerfile`, `.dockerignore`                               | Verified multi-stage non-root API image                                               |
 | `backend/src/main/resources/application.yml`                        | Safe H2 defaults and environment-controlled production settings                       |
 | `backend/src/main/resources/db/migration/V1__operations_schema.sql` | Tables, constraints, and scheduler/listing indexes                                    |
+| `backend/src/main/resources/db/migration/V2__filtered_job_indexes.sql` | Non-destructive indexes for filtered job lists and bounded audit windows            |
 | `backend/.../OperationsConsoleApplication.java`                     | Spring entry point and UTC clock dependency                                           |
 | `backend/.../domain/*.java`                                         | Immutable account, job, status, failure-plan, and audit models                        |
 | `backend/.../connector/*.java`                                      | Fake-provider contract, pages, records, registry, failures, and token bucket          |
@@ -139,15 +152,18 @@ authentication. See [API guide](docs/api.md) and the complete
 | `backend/src/test/.../RetryPolicyTest.java`                         | Backoff cap and deterministic-jitter properties                                       |
 | `backend/src/test/.../OperationsServiceIntegrationTest.java`        | Migration, persistence, idempotency, pagination, processing, and audit tests          |
 | `backend/src/test/.../OperationsControllerIntegrationTest.java`     | HTTP contract, authorization, and validation tests                                    |
+| `backend/src/test/.../OperationsReviewIntegrationTest.java`, `store/PageCursorTest.java` | Complete filtered paging, bounded history, exact request-key binding, legacy/invalid cursors |
 | `backend/src/test/.../PerformanceCharacterizationTest.java`         | Large-sample algorithm timing guardrail                                               |
 | `frontend/package*.json`                                            | Exact web dependency graph and repeatable commands                                    |
 | `frontend/tsconfig*.json`, `vite.config.ts`, `vitest.config.ts`     | Strict TypeScript, production bundling, and coverage configuration                    |
 | `frontend/eslint.config.mjs`, `.prettier*`                          | Static analysis and deterministic formatting policy                                   |
 | `frontend/index.html`, `src/main.tsx`, `src/styles.css`             | Accessible document shell, React mount, and responsive visual system                  |
 | `frontend/src/App.tsx`, `components/StatusBadge.tsx`                | Operator workflow, status metrics, actions, and semantic state labels                 |
+| `frontend/src/JobReview.tsx`, `JobReview.test.tsx`                   | Filtered read-only review, cancellation of stale UI results, downloads and regressions |
 | `frontend/src/api/client.ts`, `schema.d.ts`                         | Typed HTTP boundary and generated OpenAPI declarations                                |
 | `frontend/src/*.test.tsx`, `src/api/*.test.ts`, `src/test/setup.ts` | Component, accessibility, interaction, and HTTP adapter tests                         |
 | `frontend/Dockerfile`, `.dockerignore`, `nginx.conf`                | Verified static image, security headers, SPA routing, and same-origin proxy           |
+| `frontend/playwright.config.ts`, `tests/browser-server.mjs`, `tests/check-browser-fixture.mjs`, `tests/browser/*.browser.ts` | Owned real-Java browser fixtures, isolation guards and desktop/mobile acceptance |
 | `scripts/verify.sh`, `demo.sh`                                      | Full quality gate and runnable end-to-end API demonstration                           |
 | `scripts/validate-repository.mjs`, `generate-code-index.mjs`        | Documentation/header invariants and exact source line index                           |
 | `docs/`                                                             | Design, API, data, complexity, testing, security, operations, reports, and code index |
@@ -163,6 +179,12 @@ results from CI. The project intentionally avoids real OAuth, secrets, external 
 worker claiming, and production identity management; see [Limitations](docs/limitations.md).
 The [latest maintenance audit](docs/reports/maintenance-audit-2026-09-18.md) records the current
 hosted runs and dependency compatibility decisions.
+
+The [practical workflow report](docs/reports/practical-workflows-2026-11-09.md) records this
+upgrade's acceptance evidence and remaining deployment boundaries.
+
+Created by [Jason Stys](https://github.com/JasonStys); contact through the profile links or this
+repository's issue tracker for non-sensitive questions.
 
 ## License
 

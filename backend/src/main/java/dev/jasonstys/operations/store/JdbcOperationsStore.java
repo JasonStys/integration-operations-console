@@ -215,22 +215,36 @@ public class JdbcOperationsStore implements OperationsStore {
 
     @Override
     public JobPage listJobs(int limit, PageCursor cursor) {
+        return listJobs(limit, cursor, null, null);
+    }
+
+    @Override
+    public JobPage listJobs(int limit, PageCursor cursor, UUID accountId, JobStatus status) {
+        if (limit < 1 || limit > 100) {
+            throw new IllegalArgumentException("page limit must be between 1 and 100");
+        }
+        if (cursor != null) {
+            cursor.requireScope(accountId, status);
+        }
         int queryLimit = limit + 1;
         MapSqlParameterSource parameters = new MapSqlParameterSource("limit", queryLimit);
-        String sql;
-        if (cursor == null) {
-            sql = "SELECT * FROM sync_jobs ORDER BY updated_at DESC, id DESC LIMIT :limit";
-        } else {
-            sql = """
-                    SELECT * FROM sync_jobs
-                    WHERE updated_at < :updatedAt
-                       OR (updated_at = :updatedAt AND id < :id)
-                    ORDER BY updated_at DESC, id DESC
-                    LIMIT :limit
-                    """;
+        List<String> predicates = new ArrayList<>();
+        if (accountId != null) {
+            predicates.add("account_id = :accountId");
+            parameters.addValue("accountId", accountId);
+        }
+        if (status != null) {
+            predicates.add("status = :status");
+            parameters.addValue("status", status.name());
+        }
+        if (cursor != null) {
+            predicates.add("(updated_at < :updatedAt OR (updated_at = :updatedAt AND id < :id))");
             parameters.addValue("updatedAt", databaseTime(cursor.updatedAt()));
             parameters.addValue("id", cursor.id());
         }
+        String sql = "SELECT * FROM sync_jobs"
+                + (predicates.isEmpty() ? "" : " WHERE " + String.join(" AND ", predicates))
+                + " ORDER BY updated_at DESC, id DESC LIMIT :limit";
         List<SyncJob> rows = new ArrayList<>(jdbc.query(sql, parameters, JOB_ROW));
         boolean hasMore = rows.size() > limit;
         if (hasMore) {
@@ -239,9 +253,28 @@ public class JdbcOperationsStore implements OperationsStore {
         String nextCursor = null;
         if (hasMore && !rows.isEmpty()) {
             SyncJob last = rows.getLast();
-            nextCursor = new PageCursor(last.updatedAt(), last.id()).encode();
+            nextCursor = new PageCursor(last.updatedAt(), last.id(), accountId, status).encode();
         }
         return new JobPage(rows, nextCursor);
+    }
+
+    @Override
+    public AuditPage auditPage(UUID jobId, int limit, Long before) {
+        if (limit < 1 || limit > 100 || (before != null && before < 1)) {
+            throw new IllegalArgumentException("invalid audit window bounds");
+        }
+        String sql = "SELECT * FROM audit_events WHERE job_id = :jobId"
+                + (before == null ? "" : " AND id < :before") + " ORDER BY id DESC LIMIT :limit";
+        MapSqlParameterSource parameters = new MapSqlParameterSource("jobId", jobId)
+                .addValue("before", before).addValue("limit", limit + 1);
+        List<AuditEvent> rows = new ArrayList<>(jdbc.query(sql, parameters, AUDIT_ROW));
+        boolean more = rows.size() > limit;
+        if (more) {
+            rows.removeLast();
+        }
+        String next = more ? rows.getLast().id().toString() : null;
+        java.util.Collections.reverse(rows);
+        return new AuditPage(rows, next);
     }
 
     @Override

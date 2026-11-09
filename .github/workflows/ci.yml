@@ -65,9 +65,9 @@ jobs:
         run: npm run verify
       - name: Confirm generated API declarations are committed
         run: git diff --exit-code -- frontend/src/api/schema.d.ts
-      - name: Audit production dependencies
+      - name: Audit complete dependency graph
         working-directory: frontend
-        run: npm audit --omit=dev --audit-level=high
+        run: npm audit --audit-level=moderate
       - name: Upload frontend reports
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -141,3 +141,60 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Build application images
         run: docker compose build api web
+
+  browser:
+    name: Actual Java and browser acceptance
+    runs-on: ubuntu-latest
+    needs: [backend, frontend, repository]
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Java 21
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+      - name: Set up Node.js 24
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Build the verified backend for the owned browser fixture
+        working-directory: backend
+        run: |
+          chmod +x mvnw
+          ./mvnw --batch-mode --no-transfer-progress -DskipTests package
+      - name: Install locked browser dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Build actual production UI
+        working-directory: frontend
+        run: npm run build
+      - name: Install locked Chromium runtime
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+      - name: Verify owned-fixture isolation guards
+        working-directory: frontend
+        run: node tests/check-browser-fixture.mjs
+      - name: Exercise actual Java/H2 and desktop/mobile browser workflows
+        working-directory: frontend
+        env:
+          IOC_E2E_API_PORT: "18961"
+          IOC_E2E_UI_PORT: "18962"
+        run: npm run test:browser
+      - name: Upload bounded browser diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: actual-browser-failure-evidence
+          retention-days: 3
+          if-no-files-found: warn
+          path: |
+            backend/target/browser-results.json
+            backend/target/browser-results/

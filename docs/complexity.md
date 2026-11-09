@@ -16,7 +16,17 @@ configured maximum attempts (bounded at 10).
 | Provider page normalize  | O(p)                        | O(p)             | Each emitted record is visited once               |
 | Full logical sync        | O(total records + failures) | O(p) per run     | Cursor streams one bounded page at a time         |
 
-The UI holds the recent ten jobs and selected audit list, not the entire database. Attempts, page
+Filtered listing has supporting `(account, updated, id)`, `(status, updated, id)` and
+`(account, status, updated, id)` indexes. A suitable database plan can seek then read O(k) matching
+rows; SQL optimizers and concurrent updates determine actual work. No cross-hardware speedup is
+claimed. Bounded audit windows use `(job_id, id)` with an exclusive ID boundary and read at most
+`k+1` rows (k<=100); reversal and JSON serialization require O(k) memory/time.
+
+The UI holds the recent ten jobs, one 20-job page, one 25-event window and a navigation cursor
+per visited page, rather than loading all jobs/events. Long navigation sessions grow the cursor
+stack O(pages); changing filters resets it. Existing account lists and status-count scans remain
+unbounded database operations, and the legacy audit API remains unbounded for compatibility.
+Attempts, page
 size, request limit, input lengths, and token capacity are bounded to prevent accidental unbounded
 work. At much larger scale, status counts would move to a summary table or metrics store rather
 than scan the jobs table.

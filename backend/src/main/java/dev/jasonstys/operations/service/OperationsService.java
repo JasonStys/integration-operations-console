@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 
 import dev.jasonstys.operations.connector.ConnectorException;
 import dev.jasonstys.operations.connector.ConnectorRegistry;
@@ -57,7 +58,8 @@ public class OperationsService {
         this.store = store;
         this.registry = registry;
         this.retryPolicy = retryPolicy;
-        this.clock = clock;
+        // SQL TIMESTAMP stores microseconds; prevent rounding an immediate job into the future.
+        this.clock = Clock.tick(clock, Duration.ofNanos(1_000));
         this.meterRegistry = meterRegistry;
     }
 
@@ -95,6 +97,10 @@ public class OperationsService {
                 UUID.randomUUID(), accountId, failurePlan, maxAttempts,
                 correlationId, idempotencyKey, now);
         OperationsStore.SubmissionResult result = store.saveJobIfAbsent(candidate);
+        if (!result.created() && (!result.job().accountId().equals(accountId)
+                || result.job().failurePlan() != failurePlan || result.job().maxAttempts() != maxAttempts)) {
+            throw new IllegalStateException("idempotency key is already bound to a different sync request");
+        }
         if (result.created()) {
             audit(result.job(), "JOB_SUBMITTED", actor,
                     "Queued with failure plan " + failurePlan, now);
@@ -161,8 +167,33 @@ public class OperationsService {
     /** @return validated keyset page */
     @Transactional(readOnly = true)
     public OperationsStore.JobPage jobs(int limit, String encodedCursor) {
+        return jobs(limit, encodedCursor, null, null);
+    }
+
+    /** @return bounded query-specific keyset page; cursors cannot silently switch filters */
+    @Transactional(readOnly = true)
+    public OperationsStore.JobPage jobs(int limit, String encodedCursor, UUID accountId, JobStatus status) {
         PageCursor cursor = encodedCursor == null ? null : PageCursor.decode(encodedCursor);
-        return store.listJobs(limit, cursor);
+        return store.listJobs(limit, cursor, accountId, status);
+    }
+
+    /** Capture current state and one bounded audit window together without running or replaying work. */
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
+    public JobInspection inspection(UUID id, int limit, Long before) {
+        Instant capturedAt = clock.instant();
+        SyncJob job = requireJob(id);
+        boolean runnableState = job.status() == JobStatus.QUEUED || job.status() == JobStatus.RETRY_WAIT;
+        Long delay = runnableState ? Math.max(0, Duration.between(capturedAt, job.availableAt()).toMillis()) : null;
+        return new JobInspection(job, capturedAt, delay, store.auditPage(id, limit, before),
+                "Captured state and event window, not a live countdown or historical state reconstruction. "
+                + "Zero delay does not predict provider availability. Older history has an explicit cursor; "
+                + "reading never runs, cancels or replays a job.");
+    }
+
+    /** Read-only operational review; history pagination does not change captured current-job meaning. */
+    @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.ALWAYS)
+    public record JobInspection(SyncJob job, Instant capturedAt, Long nextEligibleDelayMs,
+            OperationsStore.AuditPage history, String notice) {
     }
 
     /** @return append-only audit history */
