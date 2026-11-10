@@ -39,10 +39,10 @@ methods, and important named variables. Run the generator after source edits.
 
 ## `backend/src/main/java/dev/jasonstys/operations/connector/ConnectorRegistry.java`
 
-- Line 17: `ConnectorRegistry`
-- Line 41: `require`
-- Line 50: `descriptors`
-- Line 57: `Descriptor`
+- Line 18: `ConnectorRegistry`
+- Line 47: `require`
+- Line 56: `descriptors`
+- Line 61: `Descriptor`
 
 ## `backend/src/main/java/dev/jasonstys/operations/connector/ProviderPage.java`
 
@@ -236,6 +236,13 @@ methods, and important named variables. Run the generator after source edits.
 ## `backend/src/test/java/dev/jasonstys/operations/PerformanceCharacterizationTest.java`
 
 - Line 22: `PerformanceCharacterizationTest`
+
+## `backend/src/test/java/dev/jasonstys/operations/connector/ConnectorRegistryTest.java`
+
+- Line 20: `ConnectorRegistryTest`
+- Line 77: `verifyPermutations`
+- Line 101: `MetadataConnector`
+- Line 103: `fetchPage`
 
 ## `backend/src/test/java/dev/jasonstys/operations/connector/TokenBucketTest.java`
 

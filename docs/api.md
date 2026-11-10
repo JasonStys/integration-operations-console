@@ -26,6 +26,11 @@ The canonical machine-readable contract is [openapi.yaml](openapi.yaml). All rou
 | `GET /jobs/{id}/inspection` | Capture current state and a bounded audit window |
 | `GET /dashboard`         | Read all status counts and ten recent jobs |
 
+`GET /connectors` returns discovery metadata in ascending, case-sensitive connector-ID order
+(Java `String.compareTo`), rather than display-name or hash iteration order. The current choices
+are `atlas-ads`, then `beacon-audience`. Discovery reads immutable startup metadata and does not fetch
+provider data. This ordering does not grant either provider priority when jobs are scheduled.
+
 ## Example
 
 ```bash

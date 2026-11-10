@@ -9,6 +9,9 @@ synthetic databases; unit tests inject deterministic collaborators.
 
 - Domain unit tests cover legal/illegal job transitions and terminal-state protection.
 - Token-bucket tests cover capacity, exhaustion, and clock-driven refill.
+- Connector-registry tests check all 120 discovery permutations against explicit metadata order,
+  including different colliding IDs, duplicate rejection, exact lookup identity, empty discovery,
+  and input/returned-list mutation resistance. A real Spring HTTP test checks Atlas before Beacon.
 - Retry-policy tests verify deterministic jitter, monotonic growth, and the cap across many IDs.
 - Service integration tests run Flyway against H2 PostgreSQL mode and cover account/job deduplication,
   pagination, successful multipage work, permanent failure, replay, cancellation, and audit order.
@@ -61,3 +64,6 @@ See [test summary](reports/test-summary.md) for the latest recorded result and
 The [2026-11-09 workflow report](reports/practical-workflows-2026-11-09.md) supersedes those initial
 publication counts for this feature. Browser acceptance starts an owned packaged API with a fresh
 in-memory database and built static UI; it never reuses a user's existing server or database.
+
+The [connector-order correction report](reports/connector-order-2026-11-09.md) records a reproduced
+Java collection-order contract bug and its focused regression evidence.
