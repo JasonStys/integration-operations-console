@@ -15,6 +15,7 @@ repository.
 ## What it demonstrates
 
 - Two fictional, deterministic connector adapters with cursor pagination and normalized records.
+  Discovery choices retain ascending connector-ID order across JVMs and bean discovery order.
 - Durable accounts, jobs, idempotency keys, retry state, and append-only audit events.
 - Capped exponential backoff with deterministic jitter, rate-limit handling, dead-lettering,
   replay, cancellation, and correlation IDs.

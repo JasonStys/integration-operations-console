@@ -1,6 +1,6 @@
 /*
  * File: OperationsControllerIntegrationTest.java
- * Purpose: HTTP contract tests for role checks, validation, creation, and correlation headers.
+ * Purpose: HTTP contracts for discovery order, roles, validation, creation, and correlation headers.
  * Symbols: MockMvc request scenarios; exact lines are generated in docs/code-index.md.
  */
 package dev.jasonstys.operations;
@@ -27,6 +27,15 @@ import org.springframework.test.web.servlet.MockMvc;
 class OperationsControllerIntegrationTest {
     @Autowired
     private MockMvc mvc;
+
+    @Test
+    void discoveryReturnsFictionalProvidersInConnectorIdOrder() throws Exception {
+        mvc.perform(get("/api/v1/connectors"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value("atlas-ads"))
+                .andExpect(jsonPath("$[1].id").value("beacon-audience"));
+    }
 
     @Test
     void viewerCannotMutateButCanRead() throws Exception {

@@ -1,7 +1,8 @@
 /*
  * File: ConnectorRegistry.java
  * Purpose: Validated O(1) connector lookup and stable API discovery ordering.
- * Symbols: connectorsById map plus require() and descriptors(); exact lines are in docs/code-index.md.
+ * Symbols: connectorsById lookup, orderedDescriptors snapshot, require(), and descriptors().
+ * Variables: exact declaration locations are generated in docs/code-index.md.
  */
 package dev.jasonstys.operations.connector;
 
@@ -16,9 +17,10 @@ import org.springframework.stereotype.Component;
 @Component
 public final class ConnectorRegistry {
     private final Map<String, SimulatedConnector> connectorsById;
+    private final List<Descriptor> orderedDescriptors;
 
     /**
-     * Builds an immutable-by-convention lookup and rejects duplicate connector IDs.
+     * Builds immutable lookup/metadata snapshots and rejects duplicate connector IDs.
      *
      * @param connectors discovered Spring connector implementations
      */
@@ -30,6 +32,10 @@ public final class ConnectorRegistry {
             }
         });
         connectorsById = Map.copyOf(indexed);
+        // Map.copyOf has no encounter-order contract; capture the explicitly sorted source instead.
+        orderedDescriptors = indexed.values().stream()
+                .map(connector -> new Descriptor(connector.id(), connector.displayName()))
+                .toList();
     }
 
     /**
@@ -46,11 +52,9 @@ public final class ConnectorRegistry {
         return connector;
     }
 
-    /** @return stable connector metadata for the UI */
+    /** @return immutable metadata in ascending, case-sensitive connector-ID order */
     public List<Descriptor> descriptors() {
-        return connectorsById.values().stream()
-                .map(connector -> new Descriptor(connector.id(), connector.displayName()))
-                .toList();
+        return orderedDescriptors;
     }
 
     /** API-safe connector metadata. */

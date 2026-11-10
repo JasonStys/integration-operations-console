@@ -1,11 +1,13 @@
 # Complexity and data-structure analysis
 
 Let `n` be stored jobs, `k` the requested page size, `p` records in a provider page, and `a` the
-configured maximum attempts (bounded at 10).
+configured maximum attempts (bounded at 10). Let `c` be discovered connector implementations.
 
 | Operation                | Time                        | Extra space      | Reason                                            |
 | ------------------------ | --------------------------- | ---------------- | ------------------------------------------------- |
 | Connector lookup         | O(1) average                | O(c) registry    | Immutable hash map keyed by connector ID          |
+| Connector registry build | O(c log c)                  | O(c)             | Sort once; copy hash lookup and ordered metadata  |
+| Discovery metadata read  | O(1)                        | O(1)             | Return immutable ordered list; JSON output is O(c) |
 | Token-bucket decision    | O(1)                        | O(1)             | Constant arithmetic and state update              |
 | Retry delay              | O(1)                        | O(1)             | Bounded exponent and identifier hash              |
 | Account/job keyed lookup | O(log n)                    | O(1) client side | Database B-tree primary/unique index              |
