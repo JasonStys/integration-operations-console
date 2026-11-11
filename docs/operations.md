@@ -2,6 +2,14 @@
 
 ## Start and verify
 
+For the bundled Windows app, open `IntegrationOperationsConsole.exe`, use its
+guided browser help, then choose **Quit application** in the browser or status
+window. Browser-tab close alone does not stop the service. Data is in a separate
+OS-local profile; the app refuses a second copy on that profile and never resets
+existing settings after startup failure. See [native operations and backup
+boundaries](native-application.md). The commands below describe the existing
+container/developer topology, whose defaults remain unchanged.
+
 Run `docker compose up --build`, then confirm:
 
 - Web: `curl -fsS http://localhost:8081/`

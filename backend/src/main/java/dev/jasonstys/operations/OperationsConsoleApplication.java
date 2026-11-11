@@ -12,6 +12,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
+import dev.jasonstys.operations.desktop.DesktopLauncher;
+
 /** Starts the API and exposes an injectable UTC clock. */
 @SpringBootApplication
 public class OperationsConsoleApplication {
@@ -22,7 +24,11 @@ public class OperationsConsoleApplication {
      * @param args standard Spring command-line arguments
      */
     public static void main(String[] args) {
-        SpringApplication.run(OperationsConsoleApplication.class, args);
+        if (Boolean.getBoolean("ioc.desktop.launch")) {
+            DesktopLauncher.main(args);
+        } else {
+            SpringApplication.run(OperationsConsoleApplication.class, args);
+        }
     }
 
     /**

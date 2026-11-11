@@ -21,8 +21,8 @@ const requiredFiles = [
   'docs/reports/test-summary.md',
   'docs/reports/validation.md',
 ];
-const headerExtensions = new Set(['.java', '.ts', '.tsx', '.mjs', '.sh', '.sql', '.css']);
-const excludedDirectories = new Set(['.git', 'coverage', 'dist', 'node_modules', 'target']);
+const headerExtensions = new Set(['.java', '.ts', '.tsx', '.mjs', '.sh', '.ps1', '.sql', '.css']);
+const excludedDirectories = new Set(['.git', '.runtime', 'release', 'coverage', 'dist', 'node_modules', 'target']);
 
 /** Recursively returns source paths without entering dependency or generated-output directories. */
 function walk(directory) {

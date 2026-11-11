@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "version": "1.1.0",
+  "source": "7789dd296b75f5a711f872c752dfc686ec15e2de",
+  "sourceDirty": true,
+  "platform": "win32",
+  "acceptance": "passed",
+  "stages": [
+    "owned-exe-ready-with-bundled-runtime",
+    "actual-ui-idempotent-job-export-and-refusals",
+    "restarted-durable-records-and-real-exit",
+    "complete"
+  ],
+  "recordsProcessed": 5,
+  "scenarios": [
+    "healthy-idempotent-two-page-sync",
+    "permanent-schema-failure-replay-cancel"
+  ],
+  "thirdPartyRequests": 0,
+  "nativeWindowVisibleBothLaunches": true,
+  "preservation": "settings bytes and actual linked account/job/audit retained across restart",
+  "distribution": "actual unsigned jpackage app-image; no OS installation claimed"
+}
