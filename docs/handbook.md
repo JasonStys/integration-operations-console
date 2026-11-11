@@ -2,6 +2,12 @@
 
 By Jason Stys.
 
+Version 1.1.0 adds the [bundled Windows application](native-application.md), with a
+real status/quit window, local browser session and durable workspace. The original
+reviewed Word edition below retains its cited historical source baseline; it does
+not automatically incorporate this later source change. The current observed
+native evidence is in [the dated report](reports/native-application-2026-11-10.md).
+
 Inspect account-scoped integration jobs, retry scheduling, idempotent submissions and audit history through a Java API and TypeScript interface. The demonstration actor headers are not a production identity provider.
 
 Search all jobs by account/state, page captured audit history and download exact reviews. Fixed request-key intent, real-client binding, timestamp precision, null wire fields and mobile overflow.
@@ -10,8 +16,8 @@ Makes integration support usable beyond the recent-activity feed and catches def
 
 ## Read the documentation
 
-| Edition | Audience and contents |
-| --- | --- |
+| Edition                                          | Audience and contents                                                                       |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------- |
 | [project-guide.docx](reports/project-guide.docx) | User and developer guide: purpose, current usage, design, boundaries and source references. |
 
 The editable Markdown remains the maintenance source. The Word files are readable editions. See [publication identities and review](reports/publications.json) and the [documentation refresh record](reports/documentation-refresh-2026-11-09.md).

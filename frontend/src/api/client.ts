@@ -6,6 +6,7 @@
  * Variables: baseUrl is immutable; mutation headers are explicit demo-only role metadata.
  */
 import type { components } from './schema';
+import { desktopHeaders } from '../desktop';
 
 export type ConnectorDescriptor = components['schemas']['ConnectorDescriptor'];
 export type ConnectorAccount = components['schemas']['ConnectorAccount'];
@@ -117,6 +118,7 @@ export class HttpOperationsClient implements OperationsClient {
       ...options,
       headers: {
         Accept: 'application/json',
+        ...desktopHeaders(this.baseUrl),
         ...(options.body === undefined ? {} : { 'Content-Type': 'application/json' }),
         ...options.headers,
       },

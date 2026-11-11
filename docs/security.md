@@ -18,6 +18,16 @@ rate limiting, TLS, secret management, and audited administrator access.
 
 ## Data and logs
 
+The native profile adds a real per-launch local session in addition to the
+educational role header. It enforces the actual loopback Host/Origin, uses an
+unpredictable launch fragment removed before API use, refuses cross-site requests
+and applies restrictive browser resource policy. The session is kept only in
+this origin's tab storage/memory and never returned by readiness/info APIs.
+An OS ownership lock protects the local database from a second app process.
+Private files use OS-owner permissions. This is not hostile-local-user isolation,
+database encryption or production multiuser identity. Explicit custom database
+configuration is trusted local operator input and can change data destinations.
+
 Use invented account references only. Correlation identifiers, errors, actors, and audit detail must
 not contain credentials or sensitive records. The current fake connector payloads are generated and
 non-personal.

@@ -17,7 +17,7 @@ import { stripVTControlCharacters } from 'node:util';
 
 const frontend = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(frontend, 'dist');
-const jar = resolve(frontend, '../backend/target/integration-operations-console-1.0.0.jar');
+const jar = resolve(frontend, '../backend/target/integration-operations-console-1.1.0.jar');
 const apiPort = checkedPort(process.env.IOC_E2E_API_PORT, 18961);
 const uiPort = checkedPort(process.env.IOC_E2E_UI_PORT, 18962);
 const java =

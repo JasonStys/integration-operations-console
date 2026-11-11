@@ -12,7 +12,7 @@ RUN ./mvnw --batch-mode --no-transfer-progress verify
 FROM eclipse-temurin:21-jre-alpine AS runtime
 RUN addgroup -S app && adduser -S -G app app
 WORKDIR /app
-COPY --from=build /workspace/target/integration-operations-console-1.0.0.jar app.jar
+COPY --from=build /workspace/target/integration-operations-console-1.1.0.jar app.jar
 USER app
 EXPOSE 8080
 ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "/app/app.jar"]

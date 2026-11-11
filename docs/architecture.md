@@ -8,6 +8,15 @@ module boundaries over infrastructure volume.
 
 ## Components
 
+The optional Windows application image packages this same architecture with Java 21
+`jlink`/`jpackage`; it does not introduce a second implementation of the job engine.
+The `desktop` package owns an exclusive OS-local profile, per-launch browser session,
+native status window and graceful Spring/database shutdown. Readiness is published
+only after the actual bound listener and required native window have started.
+Its H2 file database is separate from application files. Developer memory-H2 and
+operator-selected PostgreSQL configurations retain their existing behavior. See
+[ADR 0003](adr/0003-bundled-local-application.md).
+
 The React/TypeScript client renders dashboard counts, account and job forms, job actions, and audit
 history. Its data types are generated from `openapi.yaml`, reducing contract drift.
 

@@ -18,6 +18,7 @@ import {
 } from './api/client';
 import { StatusBadge } from './components/StatusBadge';
 import { JobReview } from './JobReview';
+import { DesktopControls } from './DesktopControls';
 
 interface AppProps {
   client?: OperationsClient;
@@ -130,6 +131,7 @@ export function App({ client = apiClient }: AppProps) {
       </header>
 
       <main id="main-content">
+        <DesktopControls />
         <div className="notice" role="status" aria-live="polite">
           {error === null ? message : `Error: ${error}`}
         </div>

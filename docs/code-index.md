@@ -5,8 +5,8 @@ methods, and important named variables. Run the generator after source edits.
 
 ## `backend/src/main/java/dev/jasonstys/operations/OperationsConsoleApplication.java`
 
-- Line 17: `OperationsConsoleApplication`
-- Line 24: `main`
+- Line 19: `OperationsConsoleApplication`
+- Line 26: `main`
 
 ## `backend/src/main/java/dev/jasonstys/operations/connector/AbstractFakeConnector.java`
 
@@ -61,6 +61,55 @@ methods, and important named variables. Run the generator after source edits.
 
 - Line 13: `TokenBucket`
 - Line 44: `tryConsume`
+
+## `backend/src/main/java/dev/jasonstys/operations/desktop/DesktopBoundaryFilter.java`
+
+- Line 25: `DesktopBoundaryFilter`
+- Line 34: `doFilterInternal`
+- Line 67: `deny`
+
+## `backend/src/main/java/dev/jasonstys/operations/desktop/DesktopController.java`
+
+- Line 22: `DesktopController`
+- Line 32: `health`
+- Line 38: `info`
+- Line 45: `quit`
+
+## `backend/src/main/java/dev/jasonstys/operations/desktop/DesktopLauncher.java`
+
+- Line 31: `DesktopLauncher`
+- Line 36: `main`
+- Line 101: `browse`
+- Line 113: `showWindow`
+- Line 134: `windowClosing`
+
+## `backend/src/main/java/dev/jasonstys/operations/desktop/DesktopProfile.java`
+
+- Line 31: `DesktopProfile`
+- Line 46: `location`
+- Line 69: `open`
+- Line 134: `secret`
+- Line 141: `root`
+- Line 146: `databaseUrl`
+- Line 153: `username`
+- Line 158: `password`
+- Line 163: `protect`
+- Line 178: `requireRegularDirectory`
+- Line 186: `close`
+
+## `backend/src/main/java/dev/jasonstys/operations/desktop/DesktopState.java`
+
+- Line 24: `DesktopState`
+- Line 47: `attach`
+- Line 53: `ready`
+- Line 76: `launchUrl`
+- Line 81: `health`
+- Line 89: `authorized`
+- Line 96: `stopping`
+- Line 101: `persistence`
+- Line 107: `window`
+- Line 112: `requestClose`
+- Line 127: `close`
 
 ## `backend/src/main/java/dev/jasonstys/operations/domain/AuditEvent.java`
 
@@ -248,6 +297,20 @@ methods, and important named variables. Run the generator after source edits.
 
 - Line 14: `TokenBucketTest`
 
+## `backend/src/test/java/dev/jasonstys/operations/desktop/DesktopBoundaryTest.java`
+
+- Line 20: `DesktopBoundaryTest`
+- Line 21: `request`
+
+## `backend/src/test/java/dev/jasonstys/operations/desktop/DesktopProfileTest.java`
+
+- Line 23: `DesktopProfileTest`
+
+## `backend/src/test/java/dev/jasonstys/operations/desktop/DesktopStateTest.java`
+
+- Line 25: `DesktopStateTest`
+- Line 35: `close`
+
 ## `backend/src/test/java/dev/jasonstys/operations/domain/SyncJobTest.java`
 
 - Line 17: `SyncJobTest`
@@ -303,23 +366,37 @@ methods, and important named variables. Run the generator after source edits.
 
 ## `frontend/src/App.tsx`
 
-- Line 22: `AppProps`
-- Line 26: `failurePlans`
-- Line 34: `App`
-- Line 35: `accountNameId`
-- Line 36: `connectorId`
-- Line 37: `accountId`
-- Line 38: `failureId`
-- Line 39: `referenceId`
-- Line 40: `requestKeyId`
-- Line 55: `refresh`
-- Line 74: `execute`
-- Line 88: `createAccount`
-- Line 91: `result`
-- Line 100: `submitJob`
-- Line 103: `result`
-- Line 111: `showAudit`
-- Line 385: `errorMessage`
+- Line 23: `AppProps`
+- Line 27: `failurePlans`
+- Line 35: `App`
+- Line 36: `accountNameId`
+- Line 37: `connectorId`
+- Line 38: `accountId`
+- Line 39: `failureId`
+- Line 40: `referenceId`
+- Line 41: `requestKeyId`
+- Line 56: `refresh`
+- Line 75: `execute`
+- Line 89: `createAccount`
+- Line 92: `result`
+- Line 101: `submitJob`
+- Line 104: `result`
+- Line 112: `showAudit`
+- Line 387: `errorMessage`
+
+## `frontend/src/DesktopControls.test.tsx`
+
+- Line 12: `state`
+- Line 24: `fetchMock`
+- Line 32: `fetchMock`
+
+## `frontend/src/DesktopControls.tsx`
+
+- Line 11: `DesktopControls`
+- Line 17: `abort`
+- Line 31: `quit`
+- Line 34: `response`
+- Line 39: `result`
 
 ## `frontend/src/JobReview.test.tsx`
 
@@ -329,6 +406,7 @@ methods, and important named variables. Run the generator after source edits.
 - Line 50: `revision`
 - Line 53: `capture`
 - Line 78: `clientFixture`
+- Line 96: `deferred`
 - Line 97: `resolve`
 - Line 98: `reject`
 - Line 99: `promise`
@@ -397,19 +475,38 @@ methods, and important named variables. Run the generator after source edits.
 
 ## `frontend/src/api/client.ts`
 
-- Line 26: `OperationsClient`
-- Line 42: `HttpOperationsClient`
-- Line 43: `baseUrl`
-- Line 90: `query`
-- Line 98: `query`
-- Line 116: `response`
-- Line 125: `problem`
-- Line 137: `apiClient`
+- Line 27: `OperationsClient`
+- Line 43: `HttpOperationsClient`
+- Line 44: `baseUrl`
+- Line 91: `query`
+- Line 99: `query`
+- Line 117: `response`
+- Line 127: `problem`
+- Line 139: `apiClient`
 
 ## `frontend/src/components/StatusBadge.tsx`
 
 - Line 8: `StatusBadgeProps`
 - Line 13: `StatusBadge`
+
+## `frontend/src/desktop.test.ts`
+
+- Line 9: `token`
+- Line 21: `desktop`
+- Line 27: `foreign`
+- Line 37: `desktop`
+- Line 50: `desktop`
+- Line 62: `desktop`
+
+## `frontend/src/desktop.ts`
+
+- Line 6: `session`
+- Line 7: `storageKey`
+- Line 10: `initializeDesktopSession`
+- Line 12: `fragment`
+- Line 23: `saved`
+- Line 32: `desktopHeaders`
+- Line 43: `isDesktopSession`
 
 ## `frontend/src/main.tsx`
 
@@ -541,6 +638,29 @@ methods, and important named variables. Run the generator after source edits.
 - Line 54: `request`
 - Line 57: `value`
 
+## `scripts/build-native.ps1`
+
+- Line 8: `ErrorActionPreference`
+- Line 9: `taskRoot`
+- Line 10: `taskReleaseRoot`
+- Line 11: `taskOutput`
+- Line 20: `Invoke-Checked`
+- Line 27: `taskFrontend`
+- Line 28: `taskVersion`
+- Line 33: `taskSource`
+- Line 35: `taskDirty`
+- Line 36: `taskJdkRelease`
+- Line 37: `taskJavaVersion`
+- Line 39: `taskMetadata`
+- Line 41: `taskBuildText`
+- Line 45: `taskMaven`
+- Line 46: `taskMavenArgs`
+- Line 49: `taskStaging`
+- Line 51: `taskJar`
+- Line 53: `taskRuntime`
+- Line 64: `taskApp`
+- Line 67: `taskLicenses`
+
 ## `scripts/demo.sh`
 
 - Line 8: `BASE_URL`
@@ -554,19 +674,73 @@ methods, and important named variables. Run the generator after source edits.
 - Line 13: `supportedExtensions`
 - Line 14: `excludedNames`
 - Line 15: `patterns`
-- Line 24: `walk`
-- Line 26: `path`
-- Line 37: `extract`
-- Line 41: `pattern`
-- Line 42: `match`
-- Line 50: `render`
-- Line 51: `lines`
-- Line 58: `path`
-- Line 59: `declarations`
-- Line 61: `repositoryPath`
-- Line 63: `declaration`
-- Line 72: `main`
-- Line 73: `generated`
+- Line 26: `walk`
+- Line 28: `path`
+- Line 39: `extract`
+- Line 43: `pattern`
+- Line 44: `match`
+- Line 52: `render`
+- Line 53: `lines`
+- Line 60: `path`
+- Line 61: `declarations`
+- Line 63: `repositoryPath`
+- Line 65: `declaration`
+- Line 74: `main`
+- Line 75: `generated`
+
+## `scripts/native-acceptance.mjs`
+
+- Line 17: `root`
+- Line 18: `require`
+- Line 20: `executable`
+- Line 21: `output`
+- Line 22: `temporary`
+- Line 23: `profile`
+- Line 24: `cwd`
+- Line 27: `metadata`
+- Line 52: `child`
+- Line 53: `foreign`
+- Line 54: `pageErrors`
+- Line 55: `report`
+- Line 67: `stage`
+- Line 76: `start`
+- Line 77: `environment`
+- Line 92: `processHandle`
+- Line 98: `bytes`
+- Line 99: `stream`
+- Line 111: `ready`
+- Line 112: `deadline`
+- Line 123: `publicBytes`
+- Line 124: `privateBytes`
+- Line 129: `status`
+- Line 130: `selected`
+- Line 145: `health`
+- Line 148: `value`
+- Line 171: `exited`
+- Line 172: `deadline`
+- Line 183: `api`
+- Line 186: `response`
+- Line 195: `ownedBrowserContext`
+- Line 196: `selected`
+- Line 201: `url`
+- Line 222: `page`
+- Line 258: `accounts`
+- Line 261: `submitted`
+- Line 269: `job`
+- Line 279: `attempt`
+- Line 283: `running`
+- Line 306: `downloading`
+- Line 310: `download`
+- Line 311: `inspection`
+- Line 329: `failedSubmission`
+- Line 337: `failed`
+- Line 338: `failedRow`
+- Line 405: `second`
+- Line 409: `settingsHash`
+- Line 417: `previous`
+- Line 427: `reopened`
+- Line 432: `retained`
+- Line 435: `auditAfter`
 
 ## `scripts/validate-repository.mjs`
 

@@ -1,0 +1,24 @@
+# File: application-desktop.yml
+# Purpose: Packaged-app-only loopback/durable defaults; explicit IOC_DATABASE_* settings remain supported.
+server:
+  address: 127.0.0.1
+  port: 0
+  forward-headers-strategy: none
+  shutdown: graceful
+spring:
+  main:
+    banner-mode: off
+  lifecycle:
+    timeout-per-shutdown-phase: 10s
+  datasource:
+    url: ${IOC_DATABASE_URL:${ioc.desktop.database-url}}
+    username: ${IOC_DATABASE_USERNAME:${ioc.desktop.database-username}}
+    password: ${IOC_DATABASE_PASSWORD:${ioc.desktop.database-password}}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+logging:
+  level:
+    root: WARN

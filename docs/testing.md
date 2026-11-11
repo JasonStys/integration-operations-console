@@ -58,6 +58,29 @@ stops only its own children. Browser tests have zero retries and use real routes
 CI repeats the fast H2 build and also runs the backend against a PostgreSQL service. CodeQL scans
 Java and JavaScript/TypeScript. Build reports are uploaded on every CI run for inspection.
 
+## Actual bundled Windows application
+
+`native-application.yml` builds the real Java 21 app-image and runs
+`node scripts/native-acceptance.mjs <EXE> <evidence-directory>` against a newly
+created synthetic profile. The spawned app receives no external Java/Node on PATH.
+Its real Swing status window must be showing at both nonce/source-bound readiness
+checks. Chromium exercises account validation, idempotent two-page sync (five
+records), audit download, permanent failure/replay/cancel, query filters, role and
+Origin/session refusals, exclusive workspace locking, actual EXE exit and a fresh
+launch retaining settings bytes/account/job/audit. There are no request mocks,
+test retries, normal user-store reads or Docker repairs.
+
+Desktop profile/state/filter tests cover retained custom settings, malformed
+configuration refusal, context close before lock release, session privacy, host
+and Origin checks and flushed quit acknowledgement. Browser unit tests cover
+fragment removal, origin-bound tab storage, denied storage and refused shutdown.
+Mockito's test agent is loaded explicitly at JVM startup while preserving JaCoCo;
+no dynamic Windows attach is required.
+
+See [the native guide](native-application.md) and
+[observed validation](reports/native-application-2026-11-10.md). These local results
+do not imply the newly authored hosted workflow has already passed.
+
 See [test summary](reports/test-summary.md) for the latest recorded result and
 [validation report](reports/validation.md) for non-test gates.
 

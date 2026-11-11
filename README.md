@@ -12,6 +12,14 @@ The project demonstrates Java 21, Spring Boot, TypeScript, React, SQL, Bash, Doc
 development, automated testing, and secure continuous integration in one deliberately compact
 repository.
 
+Version 1.1.0 also provides a self-contained Windows application image: open its EXE to
+start the bundled Java service, native status/quit window and real browser interface.
+Its OS-local H2 workspace retains accounts, jobs, retry state and audit history between
+launches. No Java installation, IDE, Node, Python or Docker is required by the app user.
+See the [native application guide](docs/native-application.md) and
+[observed native validation](docs/reports/native-application-2026-11-10.md).
+This is an unsigned portable app-image; a published installer is not claimed.
+
 ## What it demonstrates
 
 - Two fictional, deterministic connector adapters with cursor pagination and normalized records.
@@ -34,7 +42,13 @@ repository.
 
 ## Quick start
 
-The shortest path requires Docker Desktop with Compose:
+For a prepared Windows app-image, retain the complete extracted directory and open
+`IntegrationOperationsConsole.exe`. The small native window opens the console and
+provides a safe quit action; the browser includes guided first-workflow help.
+Normal workspace data lives outside the app directory and Git. The app is a private
+local lab with synthetic roles/providers, not a public multiuser service.
+
+For the existing container topology, use Docker Desktop with Compose:
 
 ```bash
 docker compose up --build
@@ -100,17 +114,17 @@ trade-offs are in [Architecture](docs/architecture.md) and
 
 ## Major feature guide
 
-| Feature              | Behavior                                                                                   | Primary implementation                   |
-| -------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------- |
-| Connector simulation | Stable pages plus planned rate-limit, transient, and schema failures                       | `connector/`                             |
-| Job lifecycle        | Validated queued → running → retry/success/dead-letter/cancel transitions                  | `domain/SyncJob.java`                    |
-| Delivery safety      | Unique idempotency key and account identity constraints                                    | SQL migration and JDBC store             |
-| Retry control        | Capped exponential delay with repeatable per-job jitter                                    | `service/RetryPolicy.java`               |
-| Operations           | Run-next/run-one, cancel, replay, history, status counts                                   | service and REST controller              |
-| Observability        | Correlation response header, audit events, health probes, Prometheus counters              | web filter, store, Actuator              |
-| Typed UI             | OpenAPI-generated DTO types and a fetch adapter                                            | `docs/openapi.yaml`, `frontend/src/api/` |
-| Complete job review | Account/state filters, bounded history pages, captured state/delay and exact JSON download | `frontend/src/JobReview.tsx`, `store/`, `service/` |
-| Verification         | Unit, integration, API, component, accessibility, characterization, style, and build gates | test trees and workflows                 |
+| Feature              | Behavior                                                                                   | Primary implementation                             |
+| -------------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------- |
+| Connector simulation | Stable pages plus planned rate-limit, transient, and schema failures                       | `connector/`                                       |
+| Job lifecycle        | Validated queued → running → retry/success/dead-letter/cancel transitions                  | `domain/SyncJob.java`                              |
+| Delivery safety      | Unique idempotency key and account identity constraints                                    | SQL migration and JDBC store                       |
+| Retry control        | Capped exponential delay with repeatable per-job jitter                                    | `service/RetryPolicy.java`                         |
+| Operations           | Run-next/run-one, cancel, replay, history, status counts                                   | service and REST controller                        |
+| Observability        | Correlation response header, audit events, health probes, Prometheus counters              | web filter, store, Actuator                        |
+| Typed UI             | OpenAPI-generated DTO types and a fetch adapter                                            | `docs/openapi.yaml`, `frontend/src/api/`           |
+| Complete job review  | Account/state filters, bounded history pages, captured state/delay and exact JSON download | `frontend/src/JobReview.tsx`, `store/`, `service/` |
+| Verification         | Unit, integration, API, component, accessibility, characterization, style, and build gates | test trees and workflows                           |
 
 ## API summary
 
@@ -127,47 +141,47 @@ is not an account system and should never be used to protect real customer infor
 
 ## Repository guide
 
-| File or directory                                                   | Responsibility                                                                        |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `README.md`, `LICENSE`, `CHANGELOG.md`                              | Entry point, MIT terms, and release history                                           |
-| `CONTRIBUTING.md`, `SECURITY.md`                                    | Contribution quality bar and private vulnerability reporting                          |
-| `.editorconfig`, `.gitignore`                                       | Cross-editor formatting and generated/local exclusions                                |
-| `compose.yaml`                                                      | Local web/API/PostgreSQL topology with health-based startup                           |
-| `.github/workflows/ci.yml`                                          | Java, web, PostgreSQL, repository, and artifact checks                                |
-| `.github/workflows/codeql.yml`                                      | Java and JavaScript/TypeScript static security analysis                               |
-| `.github/dependabot.yml`                                            | Weekly Maven, npm, Docker, and workflow dependency updates                            |
-| `backend/pom.xml`, `checkstyle.xml`                                 | Dependencies, Java toolchain, coverage and style gates                                |
-| `backend/mvnw*`, `.mvn/wrapper/*`                                   | Pinned cross-platform Maven bootstrap                                                 |
-| `backend/Dockerfile`, `.dockerignore`                               | Verified multi-stage non-root API image                                               |
-| `backend/src/main/resources/application.yml`                        | Safe H2 defaults and environment-controlled production settings                       |
-| `backend/src/main/resources/db/migration/V1__operations_schema.sql` | Tables, constraints, and scheduler/listing indexes                                    |
-| `backend/src/main/resources/db/migration/V2__filtered_job_indexes.sql` | Non-destructive indexes for filtered job lists and bounded audit windows            |
-| `backend/.../OperationsConsoleApplication.java`                     | Spring entry point and UTC clock dependency                                           |
-| `backend/.../domain/*.java`                                         | Immutable account, job, status, failure-plan, and audit models                        |
-| `backend/.../connector/*.java`                                      | Fake-provider contract, pages, records, registry, failures, and token bucket          |
-| `backend/.../store/*.java`                                          | Persistence port, cursor codec, and JDBC implementation                               |
-| `backend/.../service/*.java`                                        | Retry math and transactional lifecycle orchestration                                  |
-| `backend/.../web/*.java`                                            | REST DTOs/controller, validation errors, CORS, role boundary, and correlation IDs     |
-| `backend/src/test/.../SyncJobTest.java`                             | Domain transition and invariant tests                                                 |
-| `backend/src/test/.../TokenBucketTest.java`                         | Rate-limiter refill and rejection tests                                               |
-| `backend/src/test/.../RetryPolicyTest.java`                         | Backoff cap and deterministic-jitter properties                                       |
-| `backend/src/test/.../OperationsServiceIntegrationTest.java`        | Migration, persistence, idempotency, pagination, processing, and audit tests          |
-| `backend/src/test/.../OperationsControllerIntegrationTest.java`     | HTTP contract, authorization, and validation tests                                    |
-| `backend/src/test/.../OperationsReviewIntegrationTest.java`, `store/PageCursorTest.java` | Complete filtered paging, bounded history, exact request-key binding, legacy/invalid cursors |
-| `backend/src/test/.../PerformanceCharacterizationTest.java`         | Large-sample algorithm timing guardrail                                               |
-| `frontend/package*.json`                                            | Exact web dependency graph and repeatable commands                                    |
-| `frontend/tsconfig*.json`, `vite.config.ts`, `vitest.config.ts`     | Strict TypeScript, production bundling, and coverage configuration                    |
-| `frontend/eslint.config.mjs`, `.prettier*`                          | Static analysis and deterministic formatting policy                                   |
-| `frontend/index.html`, `src/main.tsx`, `src/styles.css`             | Accessible document shell, React mount, and responsive visual system                  |
-| `frontend/src/App.tsx`, `components/StatusBadge.tsx`                | Operator workflow, status metrics, actions, and semantic state labels                 |
-| `frontend/src/JobReview.tsx`, `JobReview.test.tsx`                   | Filtered read-only review, cancellation of stale UI results, downloads and regressions |
-| `frontend/src/api/client.ts`, `schema.d.ts`                         | Typed HTTP boundary and generated OpenAPI declarations                                |
-| `frontend/src/*.test.tsx`, `src/api/*.test.ts`, `src/test/setup.ts` | Component, accessibility, interaction, and HTTP adapter tests                         |
-| `frontend/Dockerfile`, `.dockerignore`, `nginx.conf`                | Verified static image, security headers, SPA routing, and same-origin proxy           |
-| `frontend/playwright.config.ts`, `tests/browser-server.mjs`, `tests/check-browser-fixture.mjs`, `tests/browser/*.browser.ts` | Owned real-Java browser fixtures, isolation guards and desktop/mobile acceptance |
-| `scripts/verify.sh`, `demo.sh`                                      | Full quality gate and runnable end-to-end API demonstration                           |
-| `scripts/validate-repository.mjs`, `generate-code-index.mjs`        | Documentation/header invariants and exact source line index                           |
-| `docs/`                                                             | Design, API, data, complexity, testing, security, operations, reports, and code index |
+| File or directory                                                                                                            | Responsibility                                                                               |
+| ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `README.md`, `LICENSE`, `CHANGELOG.md`                                                                                       | Entry point, MIT terms, and release history                                                  |
+| `CONTRIBUTING.md`, `SECURITY.md`                                                                                             | Contribution quality bar and private vulnerability reporting                                 |
+| `.editorconfig`, `.gitignore`                                                                                                | Cross-editor formatting and generated/local exclusions                                       |
+| `compose.yaml`                                                                                                               | Local web/API/PostgreSQL topology with health-based startup                                  |
+| `.github/workflows/ci.yml`                                                                                                   | Java, web, PostgreSQL, repository, and artifact checks                                       |
+| `.github/workflows/codeql.yml`                                                                                               | Java and JavaScript/TypeScript static security analysis                                      |
+| `.github/dependabot.yml`                                                                                                     | Weekly Maven, npm, Docker, and workflow dependency updates                                   |
+| `backend/pom.xml`, `checkstyle.xml`                                                                                          | Dependencies, Java toolchain, coverage and style gates                                       |
+| `backend/mvnw*`, `.mvn/wrapper/*`                                                                                            | Pinned cross-platform Maven bootstrap                                                        |
+| `backend/Dockerfile`, `.dockerignore`                                                                                        | Verified multi-stage non-root API image                                                      |
+| `backend/src/main/resources/application.yml`                                                                                 | Safe H2 defaults and environment-controlled production settings                              |
+| `backend/src/main/resources/db/migration/V1__operations_schema.sql`                                                          | Tables, constraints, and scheduler/listing indexes                                           |
+| `backend/src/main/resources/db/migration/V2__filtered_job_indexes.sql`                                                       | Non-destructive indexes for filtered job lists and bounded audit windows                     |
+| `backend/.../OperationsConsoleApplication.java`                                                                              | Spring entry point and UTC clock dependency                                                  |
+| `backend/.../domain/*.java`                                                                                                  | Immutable account, job, status, failure-plan, and audit models                               |
+| `backend/.../connector/*.java`                                                                                               | Fake-provider contract, pages, records, registry, failures, and token bucket                 |
+| `backend/.../store/*.java`                                                                                                   | Persistence port, cursor codec, and JDBC implementation                                      |
+| `backend/.../service/*.java`                                                                                                 | Retry math and transactional lifecycle orchestration                                         |
+| `backend/.../web/*.java`                                                                                                     | REST DTOs/controller, validation errors, CORS, role boundary, and correlation IDs            |
+| `backend/src/test/.../SyncJobTest.java`                                                                                      | Domain transition and invariant tests                                                        |
+| `backend/src/test/.../TokenBucketTest.java`                                                                                  | Rate-limiter refill and rejection tests                                                      |
+| `backend/src/test/.../RetryPolicyTest.java`                                                                                  | Backoff cap and deterministic-jitter properties                                              |
+| `backend/src/test/.../OperationsServiceIntegrationTest.java`                                                                 | Migration, persistence, idempotency, pagination, processing, and audit tests                 |
+| `backend/src/test/.../OperationsControllerIntegrationTest.java`                                                              | HTTP contract, authorization, and validation tests                                           |
+| `backend/src/test/.../OperationsReviewIntegrationTest.java`, `store/PageCursorTest.java`                                     | Complete filtered paging, bounded history, exact request-key binding, legacy/invalid cursors |
+| `backend/src/test/.../PerformanceCharacterizationTest.java`                                                                  | Large-sample algorithm timing guardrail                                                      |
+| `frontend/package*.json`                                                                                                     | Exact web dependency graph and repeatable commands                                           |
+| `frontend/tsconfig*.json`, `vite.config.ts`, `vitest.config.ts`                                                              | Strict TypeScript, production bundling, and coverage configuration                           |
+| `frontend/eslint.config.mjs`, `.prettier*`                                                                                   | Static analysis and deterministic formatting policy                                          |
+| `frontend/index.html`, `src/main.tsx`, `src/styles.css`                                                                      | Accessible document shell, React mount, and responsive visual system                         |
+| `frontend/src/App.tsx`, `components/StatusBadge.tsx`                                                                         | Operator workflow, status metrics, actions, and semantic state labels                        |
+| `frontend/src/JobReview.tsx`, `JobReview.test.tsx`                                                                           | Filtered read-only review, cancellation of stale UI results, downloads and regressions       |
+| `frontend/src/api/client.ts`, `schema.d.ts`                                                                                  | Typed HTTP boundary and generated OpenAPI declarations                                       |
+| `frontend/src/*.test.tsx`, `src/api/*.test.ts`, `src/test/setup.ts`                                                          | Component, accessibility, interaction, and HTTP adapter tests                                |
+| `frontend/Dockerfile`, `.dockerignore`, `nginx.conf`                                                                         | Verified static image, security headers, SPA routing, and same-origin proxy                  |
+| `frontend/playwright.config.ts`, `tests/browser-server.mjs`, `tests/check-browser-fixture.mjs`, `tests/browser/*.browser.ts` | Owned real-Java browser fixtures, isolation guards and desktop/mobile acceptance             |
+| `scripts/verify.sh`, `demo.sh`                                                                                               | Full quality gate and runnable end-to-end API demonstration                                  |
+| `scripts/validate-repository.mjs`, `generate-code-index.mjs`                                                                 | Documentation/header invariants and exact source line index                                  |
+| `docs/`                                                                                                                      | Design, API, data, complexity, testing, security, operations, reports, and code index        |
 
 The expanded documentation map is in [Repository map](docs/repository-map.md). Exact locations of
 functions, classes, and important variables are generated in [Code index](docs/code-index.md).

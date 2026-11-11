@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const outputPath = join(repositoryRoot, 'docs', 'code-index.md');
-const supportedExtensions = new Set(['.java', '.ts', '.tsx', '.mjs', '.sh']);
+const supportedExtensions = new Set(['.java', '.ts', '.tsx', '.mjs', '.sh', '.ps1']);
 const excludedNames = new Set(['schema.d.ts', 'mvnw']);
 const patterns = [
   /\b(?:class|interface|record|enum)\s+([A-Za-z_$][\w$]*)/,
@@ -18,6 +18,8 @@ const patterns = [
   /\b(?:function)\s+([A-Za-z_$][\w$]*)\s*\(/,
   /\b(?:const|let|readonly)\s+([A-Za-z_$][\w$]*)\b/,
   /^([A-Za-z_][\w]*)\(\)\s*\{/,
+  /^function\s+([A-Za-z][A-Za-z0-9-]*)/,
+  /^\s*\$([A-Za-z][A-Za-z0-9_]*)\s*=/,
 ];
 
 /** Recursively finds authored source files and keeps generated declarations out of the index. */
@@ -25,7 +27,7 @@ function walk(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
     if (entry.isDirectory()) {
-      return ['.git', 'coverage', 'dist', 'node_modules', 'target'].includes(entry.name)
+      return ['.git', '.runtime', 'release', 'coverage', 'dist', 'node_modules', 'target'].includes(entry.name)
         ? []
         : walk(path);
     }

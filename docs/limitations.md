@@ -1,5 +1,14 @@
 # Limitations and next production steps
 
+- The Windows app-image is unsigned and portable, not an MSI/NSIS installer.
+  This local acceptance does not establish clean-machine, macOS or Linux native
+  compatibility, nor an upgrade of a populated real user's existing workspace.
+- The new native local session protects API access but roles/providers remain
+  synthetic. The H2 database is not application-level encrypted; the OS login,
+  browser and administrators remain trusted. The app is not public hosting.
+- Graceful HTTP shutdown has a finite configured drain phase; disk/database
+  close can take longer. No universal exit deadline or forced data reset is used.
+
 - Provider adapters are deterministic simulations; there is no OAuth, webhook verification, or
   live-provider contract test.
 - The role header is an educational boundary, not authentication or authorization.
