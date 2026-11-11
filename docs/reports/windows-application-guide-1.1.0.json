@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "repository": "integration-operations-console",
+  "runtimeVersion": "1.1.0",
+  "runtimeSource": "8646ee63608448651beeaa734ff3a055d17149d7",
+  "createdAt": "2026-11-11T07:03:35.561Z",
+  "author": "Jason Stys",
+  "document": "windows-application-guide-1.1.0.docx",
+  "sha256": "8277d07a7c15cba7c2d9eefeeedd998c45e1afd700319900474bd3af5218a9b9",
+  "screenshots": [
+    {
+      "file": "native-console.png",
+      "sha256": "f3f075a68ef3378379233328099b795f8e62ddd09c0293bc30557c0518efebd1",
+      "width": 1280,
+      "height": 960,
+      "caption": "The complete installed integration console displays its real local job controls and fictional provider workflow."
+    },
+    {
+      "file": "native-audit.png",
+      "sha256": "f0b9e90f9f11c9b3093b02d11785c212d8a5d5eb459564c40ec51cbea29f8673",
+      "width": 1180,
+      "height": 860,
+      "caption": "The installed console retains the original job and audit evidence after the supported synchronization workflow."
+    }
+  ],
+  "snippets": [
+    {
+      "file": "backend/src/main/java/dev/jasonstys/operations/desktop/DesktopState.java",
+      "first": 126,
+      "last": 143,
+      "sha256": "e3e4e608186bb497eed77239772f885edef37105a8e9aabc71da5650a9997446",
+      "url": "https://github.com/JasonStys/integration-operations-console/blob/8646ee63608448651beeaa734ff3a055d17149d7/backend/src/main/java/dev/jasonstys/operations/desktop/DesktopState.java#L126"
+    }
+  ],
+  "observedTests": [
+    {
+      "name": "Real native workflows",
+      "observed": "The installed Java21/Spring/React app processed five records, exercised healthy and permanent-failure/replay/cancel paths, exported audit evidence and retained jobs/settings across two normal exits.",
+      "result": "Passed"
+    },
+    {
+      "name": "Source and security",
+      "observed": "All required main workflows for the runtime revision passed; processed CodeQL analyses reported zero open main alerts before release.",
+      "result": "Passed"
+    },
+    {
+      "name": "Distribution identity",
+      "observed": "All 2 assets matched provider/checksum identities; all 221 installed files remained unchanged during acceptance.",
+      "result": "Verified"
+    },
+    {
+      "name": "PC scope",
+      "observed": "New per-user version folder and individual links verified. Synthetic profiles only; existing data and Docker were not used or changed.",
+      "result": "Verified"
+    }
+  ],
+  "visualReview": {
+    "approved": true,
+    "reviewer": "root",
+    "ooxmlSchema": "passed",
+    "pages": {
+      "page-1.png": "972a9c1ee36d15e85e707a1bc95e90f81a8b1316a9ba7d9ff585225d77472941",
+      "page-2.png": "288c9e16fc03f0f7791cd8a9e8e9e24061ea09ecfb8edc3cc33e43ea9df5e335",
+      "page-3.png": "32032f57afeabe08f94b7be47ba0cd8b5998d61e6f598b6da9b3ce4f4e79d09e",
+      "page-4.png": "6849118f31842df7270480a0dcfd9edd3eb747f78cdc2b2e31a3a1fe8f0a155d"
+    },
+    "scope": "All four final page contents individually inspected; only exact identical pixels carry prior inspection.",
+    "checkedUtc": "2026-11-11T07:15:21.847700+00:00"
+  }
+}
